@@ -4,4 +4,3 @@ remote_theme: chrisrhymes/bulma-clean-theme
 paginate: 5
 paginate_path: "/blog/page:num"
 permalink: pretty
-hero_image: https://user-images.githubusercontent.com/3200931/95620089-f13ebb80-0a6f-11eb-9af3-a1db08004bcc.png
