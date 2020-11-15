@@ -3,4 +3,4 @@ description: Parallel Hybrid particle in cell code with Adaptive mesh REfinement
 remote_theme: chrisrhymes/bulma-clean-theme
 paginate: 5
 paginate_path: "/blog/page:num"
-permalink: prett
+permalink: pretty
