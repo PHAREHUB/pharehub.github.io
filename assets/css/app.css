@@ -1,1 +1,2 @@
-$primary: #FFFFFF
+$primary: $white;
+@import "main";
