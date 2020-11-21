@@ -25,7 +25,7 @@
 }
 
 	li.roadmap:before{
-content: "\f00c"; /* FontAwesome Unicode */
+	content: "\f00c"; /* FontAwesome Unicode */
   font-family: FontAwesome;
   color:green;
   display: inline-block;
