@@ -1,0 +1,364 @@
+<!DOCTYPE HTML>
+<!--
+        Arcana by HTML5 UP
+        html5up.net | @ajlkn
+        Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+   <head>
+       <title>PHARE</title>
+       <meta charset="utf-8" />
+       <meta name="viewport" content="width=device-width, initial-scale=1" />
+       <!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+       <link rel="stylesheet" href="assets/css/main.css" />
+       <!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+       <!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+
+        <link rel="stylesheet" href="highlight/styles/atom-one-dark.css">
+        <script src="highlight/highlight.pack.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+
+     </head>
+     <body>
+        <div id="page-wrapper">
+
+            <div id="header">
+            <!-- Logo
+            <h1><a href="index.html" id="logo">Numerical Plasmas Group</a></h1>-->
+            <!-- Nav -->
+            <nav id="nav">
+            	<ul>
+                	<li class="current"><a href="index.html">Home</a></li>
+						<li>
+							<a href="#whatisphare">What is PHARE?</a>
+							<ul>
+								<li><a href="">AMR Hybrid PIC</a></li>
+								<li><a href="">Why PHARE?</a></li>
+								<li><a href="">Applications</a></li>
+							</ul>
+						</li>
+						<li><a href="#roadmap">RoadMap</a></li>			
+						<li><a href="#news">News</a></li>
+						<li>
+							<a href="#usingphare">Using PHARE</a>
+								<ul>
+									<li><a href="">Install PHARE</a></li>
+									<li><a href="">Run PHARE</a></li>
+									<li><a href="">Post-processing</a></li>
+							</ul>
+						</li>
+
+						<li><a href="#gallery">Gallery</a></li>
+                        <li>
+                                <a href="#joinus">Join Us</a>
+                                <ul>
+                                    <li> <a href="#"> Internships </a></li>
+                                    <li> <a href="#"> Jobs </a></li>
+                                </ul>
+                        </li>    
+
+
+
+
+			                                                                 
+
+                <!-- <li><a href="left-sidebar.html">Left Sidebar</a></li>
+                <li><a href="right-sidebar.html">Right Sidebar</a></li>
+                <li><a href="two-sidebar.html">Two Sidebar</a></li>
+                <li><a href="no-sidebar.html">No Sidebar</a></li>
+        -->
+				</ul>
+			</nav>
+        </div>
+
+<!-- Banner-->
+        <section id="banner">
+                <!--<header>
+                        <h2>Get our codes:</h2>
+                        <a href="https://github.com/LaboratoryOfPlasmaPhysics" class="button">https://github.com/LaboratoryOfPlasmaPhysics</a>
+                    
+                </header>-->
+        </section>
+
+            <!-- Main -->
+                <section class="wrapper style1">
+                    <div class="container">
+                        <div class="row 200%">
+                            <div class="8u 12u(narrower)">
+                                <div id="content">
+
+                                    <!-- Content -->
+
+                                        <article id="article">
+                                            <header>
+                                                <h2>First run on two fixed grids</h2>
+                                                <p>May, 29, 2020</p>
+                                            </header>
+                                            
+                                            <p>This is the first time we run PHARE, for a "real" simulation, understand that all
+                                            parts of the multiple refinement levels Hybrid PIC algorithm works from start to end. </p>
+
+                                            <video controls> <source src="bz_2ways_long.mp4" type="video/mp4"></video>
+
+
+                                            <h3>Initial condition</h3>
+                                            <p>The box is 1D and the simulation is configured in the following way:</p>
+
+                                            <pre>
+                                                <code class="python">
+ Simulation(
+        smallest_patch_size=20,
+        largest_patch_size=20,
+        time_step_nbr=100,        # number of time steps (not specified if time_step and final_time provided)
+        final_time=30.,             # simulation final time (not specified if time_step and time_step_nbr provided)
+        boundary_types="periodic", # boundary condition, string or tuple, length == len(cell) == len(dl)
+        cells=40,                # integer or tuple length == dimension
+        dl=0.3,                  # mesh size of the root level, float or tuple
+        refinement_boxes={"L0": {"B0": [(10, ), (20, )]}},
+        diag_options={"format": "phareh5", "options": {"dir": "phare_outputs","mode":"overwrite"}}
+    )
+
+                                                </code>
+                                            </pre>
+                                            <p>The initial condition used for this first case was quite simple: an Aflvén wave. 
+                                            The run is 1D along the x axis, so there's an homogeneous Bx component that will never change.
+                                            Then the other magnetic field components By and Bz are simple sine functions, with constant density
+                                            ,constant temperature. The ion temperature is super cold (and the electron temperature is zero) so that
+                                            we can get rid of the noise and see any problem that could occur.
+                                            </p>
+
+                                            <h3>Two fixed grids</h3>
+                                            <p>As a first test, we designed a simple configuration where there are only 2 refinement levels.
+                                                The coarse level is made of 2 adjacent patches filling the whole domain. The fine level is fixed
+                                                in the initial condition by setting the "refinement_boxes" parameter in the Simulation object:
+                                            </p>
+                                            <pre>
+                                                <code class="python">
+        refinement_boxes={"L0": {"B0": [(10, ), (20, )]}},
+                                                </code>
+                                            </pre>
+                                            which means PHARE will refine the domain from cells 10 to 20. 
+                                            <br /><br />
+
+                                            <p>
+                                                In this first test we see PHARE can run on several ion cyclotron times during which the wave
+                                                propagates in the domain through the fine grid without any problem occuring at the fine level 
+                                                boundaries. 
+                                            </p>
+                                        </article>
+
+                                </div>
+                            </div>
+
+
+
+
+
+
+                            <!--  
+
+                             --------------- SIDEBAR ------------------
+
+                            -->
+
+
+
+
+                            <div class="4u 12u(narrower)">
+                                <div id="sidebar">
+
+                                    <!-- Sidebar -->
+
+                                        <section>
+                                            <h3>Useful links</h3>
+                                            <ul>
+                                                <li><a href="http://github.com/phareh5/phare">PHARE on GitHUB</a></li>
+                                                <li><a href="https://github.com/PHAREHUB/PHARE/blob/master/tests/functional/alfven_wave/alfven_wave1d.py">Alfvén wave test case</a></li>
+                                            </ul>                                        
+                                            <!-- <footer>
+                                                <a href="#" class="button">Download on GitHub</a>
+                                            </footer> -->
+                                        </section>
+
+                                       
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            <!-- Footer 
+                <div id="footer">
+                    <div class="container">
+                        <div class="row">
+                            <section class="3u 6u(narrower) 12u$(mobilep)">
+                                <h3>Links to Stuff</h3>
+                                <ul class="links">
+                                    <li><a href="#">Mattis et quis rutrum</a></li>
+                                    <li><a href="#">Suspendisse amet varius</a></li>
+                                    <li><a href="#">Sed et dapibus quis</a></li>
+                                    <li><a href="#">Rutrum accumsan dolor</a></li>
+                                    <li><a href="#">Mattis rutrum accumsan</a></li>
+                                    <li><a href="#">Suspendisse varius nibh</a></li>
+                                    <li><a href="#">Sed et dapibus mattis</a></li>
+                                </ul>
+                            </section>
+                            <section class="3u 6u$(narrower) 12u$(mobilep)">
+                                <h3>More Links to Stuff</h3>
+                                <ul class="links">
+                                    <li><a href="#">Duis neque nisi dapibus</a></li>
+                                    <li><a href="#">Sed et dapibus quis</a></li>
+                                    <li><a href="#">Rutrum accumsan sed</a></li>
+                                    <li><a href="#">Mattis et sed accumsan</a></li>
+                                    <li><a href="#">Duis neque nisi sed</a></li>
+                                    <li><a href="#">Sed et dapibus quis</a></li>
+                                    <li><a href="#">Rutrum amet varius</a></li>
+                                </ul>
+                            </section>
+                            <section class="6u 12u(narrower)">
+                                <h3>Get In Touch</h3>
+                                <form>
+                                    <div class="row 50%">
+                                        <div class="6u 12u(mobilep)">
+                                            <input type="text" name="name" id="name" placeholder="Name" />
+                                        </div>
+                                        <div class="6u 12u(mobilep)">
+                                            <input type="email" name="email" id="email" placeholder="Email" />
+                                        </div>
+                                    </div>
+                                    <div class="row 50%">
+                                        <div class="12u">
+                                            <textarea name="message" id="message" placeholder="Message" rows="5"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row 50%">
+                                        <div class="12u">
+                                            <ul class="actions">
+                                                <li><input type="submit" class="button alt" value="Send Message" /></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </form>
+                            </section>
+                        </div>
+                    </div>
+-->
+                    <!-- Icons 
+                        <ul class="icons">
+                            <li><a href="#" class="icon fa-twitter"><span class="label">Twitter</span></a></li>
+                            <li><a href="#" class="icon fa-facebook"><span class="label">Facebook</span></a></li>
+                            <li><a href="#" class="icon fa-github"><span class="label">GitHub</span></a></li>
+                            <li><a href="#" class="icon fa-linkedin"><span class="label">LinkedIn</span></a></li>
+                            <li><a href="#" class="icon fa-google-plus"><span class="label">Google+</span></a></li>
+                        </ul>
+    -->
+ 
+
+                </div>
+
+        </div>
+
+        <!-- Scripts -->
+            <script src="assets/js/jquery.min.js"></script>
+            <script src="assets/js/jquery.dropotron.min.js"></script>
+            <script src="assets/js/skel.min.js"></script>
+            <script src="assets/js/util.js"></script>
+            <!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+            <script src="assets/js/main.js"></script>
+
+
+
+
+<!-- CTA
+    <section id="cta" class="wrapper style3">
+            <div class="container">
+                    <header>
+                            <h2>Are you ready to continue your quest?</h2>
+                            <a href="#" class="button">Insert Coin</a>
+                    </header>
+            </div>
+    </section>
+-->
+
+            <!-- Footer -->
+	<div id="footer">
+        <div class="container">
+                <div class="row">
+                    <section class="3u 6u(narrower) 12u$(mobilep)">
+                            <h3>Links</h3>
+                            <ul class="links">
+                                    <li><a href="http://www.lpp.fr">Laboratory of Plasma Physics</a></li>
+                                    <li><a href="http://www.plasapar.com/en/">Plas@Par</a></li>
+                            </ul>
+                    </section>
+<!--			    <section class="3u 6u$(narrower) 12u$(mobilep)">
+                                <h3>  </h3>
+                                <ul class="links">
+                                        <li><a href="#">Duis neque nisi dapibus</a></li>
+                                        <li><a href="#">Sed et dapibus quis</a></li>
+                                </ul>
+                        </section>
+                -->
+                    <section class="6u 12u(narrower)">
+                        <h3>Get In Touch</h3>
+                        <form>
+                            <div class="row 50%">
+                                <div class="6u 12u(mobilep)">
+                                        <input type="text" name="name" id="name" placeholder="Name" />
+                                </div>
+                                <div class="6u 12u(mobilep)">
+                                        <input type="email" name="email" id="email" placeholder="Email" />
+                                </div>
+                            </div>
+
+                            <div class="row 50%">
+                                    <div class="12u">
+                                            <textarea name="message" id="message" placeholder="Message" rows="5"></textarea>
+                                    </div>
+                            </div>
+                            <div class="row 50%">
+                                    <div class="12u">
+                                            <ul class="actions">
+                                                    <li><input type="submit" class="button alt" value="Send Message" /></li>
+                                            </ul>
+                                    </div>
+                            </div>
+                        </form>
+                    </section>
+                </div>
+        </div>
+
+	<!-- Icons -->
+	        <ul class="icons">
+	                <li><a href="http://github.com/pharehub/phare" class="icon fa-github"><span class="label">GitHub</span></a></li>
+
+	                <!-- <li><a href="#" class="icon fa-twitter"><span class="label">Twitter</span></a></li>
+	                <li><a href="#" class="icon fa-facebook"><span class="label">Facebook</span></a></li>
+
+	                <li><a href="#" class="icon fa-linkedin"><span class="label">LinkedIn</span></a></li>
+	                <li><a href="#" class="icon fa-google-plus"><span class="label">Google+</span></a></li>
+	        -->
+	        </ul>
+
+	<!-- Copyright -->
+	        <div class="copyright">
+	                <ul class="menu">
+	                        <li>&copy; PHARE. All rights reserved</li>
+	                </ul>
+	        </div>
+
+       	</div>
+
+    </div>
+
+                <!-- Scripts -->
+                        <script src="assets/js/jquery.min.js"></script>
+                        <script src="assets/js/jquery.dropotron.min.js"></script>
+                        <script src="assets/js/skel.min.js"></script>
+                        <script src="assets/js/util.js"></script>
+                        <!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+                        <script src="assets/js/main.js"></script>
+
+        </body>
+</html>
