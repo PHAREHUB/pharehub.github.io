@@ -123,7 +123,7 @@
 
                                         <p >                                             
                                             \begin{equation}
-                                            \frac{\partial f_p}{\partial t} + \mathbf{v}\cdot \frac{\partial f_p}{\partial \mathbf{r}} + \frac{\mathbf{\mathbf{E} + \mathbf{v}\times\mathbf{B}}}{m}\cdot \frac{\partial f_p}{\partial \mathbf{v}} = 0
+                                            \frac{\partial f_p}{\partial t} + \mathbf{v}\cdot \frac{\partial f_p}{\partial \mathbf{r}} + \frac{q_p}{m_p}(\mathbf{\mathbf{E} + \mathbf{v}\times\mathbf{B}})\cdot \frac{\partial f_p}{\partial \mathbf{v}} = 0
                                                 \label{eq:vlasov}
                                             \end{equation}
 
@@ -136,8 +136,8 @@
 
                                      <p>
                                         \begin{eqnarray}
-                                        n_i(\mathbf{r},t) &= & \sum_p \int f_p(\mathbf{r}, \mathbf{v}, t) d\mathbf{v}\\
-                                        \mathbf{u}_i(\mathbf{r},t) &= & \frac{1}{n_i}\sum_p \int \mathbf{v} f_p(\mathbf{r}, \mathbf{v}, t) d\mathbf{v}\\
+                                        n_i(\mathbf{r},t) &= & \sum_p \int f_p(\mathbf{r}, \mathbf{v}, t) d\mathbf{v} \label{eq:density}\\
+                                        \mathbf{u}_i(\mathbf{r},t) &= & \frac{1}{n_i}\sum_p \int \mathbf{v} f_p(\mathbf{r}, \mathbf{v}, t) d\mathbf{v} \label{eq:bulk}\\
                                         \end{eqnarray}
                                      </p>
 
@@ -185,10 +185,29 @@
 
 
                                     <h4 id="quasineutral">Quasi-neutrality</h4>
-                                    At this point, the equation for the electric field still has unknowns. The most obvious perhaps is \(n_e\) the electron particle density.
-                                    This is where the hybrid formalism makes the assumption that at the scale we solve the equations, the plasma is quasineutral, and thus we can neglect the difference between \(n_i\) and \(n_e\) and have only one variable \(n\): the plasma density. Since we have the total ion density already, that's our \(n)\. Equation now reads:
+                                    <p>At this point, the equation for the electric field still has unknowns. The most obvious perhaps is \(n_e\) the electron particle density.
+                                    This is where the hybrid formalism makes the assumption that at the scale we solve the equations, the plasma is quasineutral, and thus we can neglect the difference between \(n_i\) and \(n_e\) and have only one variable \(n\): the plasma density. Since we have the total ion density already, that's our \(n\). Quasineutrality enable us to get the electron bulk velocity from the known ion bulk velocity  and the electric current density: </p>
 
                                     <p>
+                                        \begin{equation}
+                                        \mathbf{u_e} = \mathbf{u_i} - \frac{\mathbf{j}}{en}
+                                        \end{equation}
+                                    </p>
+
+                                    <p>
+                                        The total current density is obtained from the static Maxwell-Ampere equation, meaning we neglect the displacement current:
+                                    </p>
+
+                                    <p>
+                                        \begin{equation}
+                                            \mu_0 \mathbf{j} = \nabla\times\mathbf{B}
+                                        \end{equation}
+                                    </p>
+
+
+                                    Equation \ref{eq:ohmelectron} now reads:
+
+                                    <p style="padding: 10px">
                                         \begin{equation}
                                         \mathbf{E} = -\mathbf{u_e}\times\mathbf{B} - \frac{1}{en}\nabla\cdot \mathbf{P_e}  +\frac{m_e}{e}\frac{d\mathbf{u_e}}{dt}
                                         \label{eq:ohmelectron2}
@@ -244,6 +263,149 @@
                                         \mathbf{E} = -\mathbf{u_e}\times\mathbf{B} - \frac{1}{en}\nabla P_e +\eta\mathbf{j} - \nu\nabla^2\mathbf{j}
                                         \label{eq:ohmelectron4}
                                         \end{equation}
+
+
+
+
+
+
+
+
+                                    <h2>Numerical integration</h2>
+
+                                    <!-- ------------------------------------------------------
+                                    
+
+                                                        PARTICLE IN CELL
+
+                                    ------------------------------------------------------------>
+
+                                    <h3>The Particle-In-Cell formalism</h3>
+
+                                        <p>There are two ways to solve equations \ref{eq:vlasov} for ion populations. It can be solved calculating
+                                        eulerian derivatives, i.e. discretizing velocity and spatial dimensions and solving the equation at those fixed location.
+                                        This is called a "Vlasoc Hybrid code". It is generally complex and require lots of computational resources.
+                                        The other way consists in adopting a Lagrangian standpoint. That is, cutting the initial
+                                         distribution function in N weighted bins and follow the dynamic
+                                        of those chunks in phase space. The little pieces of distributions are called "macro-particles".
+                                        Decomposing the distribution function \(f_p(\mathbf{r},\mathbf{v}, t)\) of the population \(p\)
+                                         into the contribution of \(N_p\) macro-particles in the following way is the base of the so-called 
+                                        "Particle-in-Cell" (PIC) method</p>
+
+
+                                        <p>
+                                            \begin{equation}
+                                                f_p(\mathbf{r}, \mathbf{v}, t) = \sum_m^{N_p} w_m S(\mathbf{r} - \mathbf{r}_m(t))\delta(\mathbf{v}-\mathbf{v}_m(t))
+                                            \end{equation}
+
+                                        </p>
+
+                                        <p>where \(\mathbf{r}_m\) and \(\mathbf{v}_m\) are the position and velocity of the \(m_{th}\) macro-particle.
+                                        \(w_m\) represents the weight of that macro-particle, i.e. how much it counts in the evaluation of \(f_p\).
+                                        \(\delta\) is the Dirac function, which says that a macro-particle represent a specific velocity in the distribution.
+                                        In contrast, the function \(S\) is a finite support function representing the "shape" of the macro-particle in the spatial dimension.
+                                        This function tells us how far from the macro-particle a local distribution sees its influence. In PHARE we use
+                                        <a href="https://en.wikipedia.org/wiki/B-spline">b-spline</a> functions to model \(S\). PHARE uses b-splines of the first, second and third order. The higher the order  the further a macro-particle influences the distribution, but the longer it takes to compute it.
+                                        
+                                    </p>
+
+                                    <p style="padding: 3px">
+                                         $$
+                                        S_1(x) = \left\{
+                                            \begin{array}{ll}
+                                                1-|x| & \mbox{si } |x|\le 1 \\
+                                                0& \mbox{sinon.}
+                                            \end{array}
+                                        \right.
+                                        $$
+                                    </p>
+
+                                    <p style="padding: 3px">
+                                         $$
+                                        S_2(x) = \left\{
+                                            \begin{array}{ll}
+                                                3/4-x^2 & \mbox{si } |x|\le 1/2 \\
+                                                1/2(3/2-|x|)^2  & \mbox{si } 1/2 \lt |x| \le 3/2 \\
+                                                0 & \mbox{si } |x| \gt 3/2
+                                            \end{array}
+                                        \right.
+                                        $$
+                                    </p>
+
+
+                                     <p style="padding: 3px">
+                                         $$
+                                        S_3(x) = \left\{
+                                            \begin{array}{ll}
+                                                1/2|x|^3 -x^2 + 2/3& \mbox{si } |x|\le 1 \\
+                                                4/3 (1 - 1/2|x|)^2  & \mbox{si } 1 \lt |x| \le 2 \\
+                                                0 & \mbox{si } |x| \gt 2
+                                            \end{array}
+                                        \right.
+                                        $$
+                                    </p>
+                                    <br />
+
+                                    <p>In 3D the shape function is just the product of the 1D functions \(S(\mathbf{\mathbf{r}_m}) = S(x-x_m)S(y-y_m)S(z-z_m)\) </p>
+
+                                    <!-- ------------------------------------------------------
+                                    
+    
+                                                        Spatial discretization
+
+                                    ------------------------------------------------------------>
+
+                                    <h3>Spatial discretization</h3>
+                                    <p>
+                                    In PHARE, equations are written independentely of the concrete discretization so it can be changed if needed.
+                                    The discretization that is concretely implemented is the one commonly known as the <a href="https://en.wikipedia.org/wiki/Finite-difference_time-domain_method">Yee Lattice</a>.
+                                    </p>
+
+
+
+                                    <!-- ------------------------------------------------------
+                                    
+    
+                                                            Time integration
+
+                                    ------------------------------------------------------------>
+
+                                    <h3>Time integration</h3>
+                                    <p>The time evolution of Hybrid equations in PHARE is an asbtract object, which allows to isolate any concrete implementation. The current implementation is a predictor-predictor-corrector scheme, also used in <a href="https://doi.org/10.1016/j.jcp.2013.11.035">Kunz et al. 2014</a>. Knowing the magnetic field \(\mathbf{B}^n\) and electric field \(\mathbf{E}^n\) at time \(t=n\), we compute a first
+                                    prediction of the magnetic field at \(t=n+1\), called \(\mathbf{B}_{p1}^{n+1}\).</p>
+
+                                    <p>
+                                        \begin{equation}
+                                            \mathbf{B}^{n+1}_{p1} = \mathbf{B}^{n} - \Delta t \nabla \times \mathbf{E}^n
+                                            \label{eq:faraday_disc}
+                                        \end{equation}
+
+                                    </p>
+
+                                    <p>
+                                        Then, having now \(\mathbf{B}_{p1}^{n+1}\) and the ion moments at \(t=n\), we compute equation \ref{eq:ohmelectron4} to get a first prediction of the electric field \(\mathbf{E}_{p1}^{n+1}\):                                         
+                                    </p>
+
+
+                                    <p>
+                                        \begin{equation}
+                                            \mathbf{E}^{n+1}_{p1} = -\mathbf{u_e}^n\times\mathbf{B}_{p1}^{n+1} - \frac{1}{en^n}\nabla P_e^n + \eta \mathbf{j}^{n+1} - \nu\nabla^2\mathbf{j}^{n+1}
+                                            \label{eq:ohm_disc}
+                                        \end{equation}
+                                    </p>
+
+                                    
+
+
+
+                                    <!-- ------------------------------------------------------
+                                    
+
+                                                            AMR
+
+                                    ------------------------------------------------------------>
+
+
 
 
                                     </p>
