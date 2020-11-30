@@ -40,6 +40,11 @@
   	position: relative;
 }
 
+	li.feature
+	{
+    	margin-left: 10px;
+	}
+
 	li.feature:before{
 	  content: "\f105"; /* FontAwesome Unicode */
 	  font-family: FontAwesome;
@@ -50,6 +55,8 @@
 	  margin-left: -1.3em; /* same as padding-left set on li */
 	  width: 1.3em; /* same as padding-left set on li */
 	}
+
+
 
 
 	article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
