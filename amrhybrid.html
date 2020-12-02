@@ -394,8 +394,106 @@
                                         \end{equation}
                                     </p>
 
-                                    
 
+                                    <p>
+                                        Now, we compute the electromagnetic field at \(t = n+1/2\) as the midpoint of the particle push that will take place just after.
+                                    </p>
+
+                                    <p>
+                                        \begin{eqnarray}
+                                            \mathbf{E}^{n+1/2}_{p1} &=& \frac{1}{2}(\mathbf{E}^n + \mathbf{E}^{n+1}_{p1}) \\
+                                            \mathbf{B}^{n+1/2}_{p1} &=& \frac{1}{2}(\mathbf{B}^n + \mathbf{B}^{n+1}_{p1})
+                                        \end{eqnarray}
+                                    </p>
+
+
+                                    <p>
+                                        At this point we have the field required to accelerate and push the particles from \(t=n\) to \(t=n+1\), as a first prediction of their position and velocity.
+                                    </p>
+
+                                    <p>
+                                        \begin{equation}
+                                            \mathbf{r}^n \to \mathbf{r}^{n+1}_p\\                                            
+                                        \end{equation}
+                                        \begin{equation}
+                                            \mathbf{v}^n \to \mathbf{v}^{n+1}_p\\
+                                        \end{equation}
+                                    </p>
+
+                                    <p>
+                                        From these new positions and velocities, the density \(n\) and the ion bulk velocity \(\mathbf{u_i}\) are computed on the mesh using the b-spline function at chosen order.
+                                    </p>
+
+                                    <p>
+                                        Now we have \(n^{n+1}\) and \(\mathbf{u_i}^{n+1}\), and also \(\mathbf{E}^{n+1/2}\) and \(\mathbf{B}^{n+1/2}\), we can start
+                                        again from \(t=n\) to get a better predictions of things at \(t=n+1\). Let's go first with Faraday's law, that can now be written in a time centered fashion:
+                                    </p>
+
+                                    <p>
+                                        \begin{equation}
+                                            \mathbf{B}^{n+1}_{p2} = \mathbf{B}^{n} - \Delta t \nabla \times \mathbf{E}^{n+1/2}
+                                            \label{eq:faraday_p2}
+                                        \end{equation}
+
+                                    </p>
+
+                                    <p>
+                                        Then again Ohm's law, but this time using \(\mathbf{B}_{p2}^{n+1}\) and moments at \(t=n+1\)
+                                    </p>
+
+                                    <p>
+                                        \begin{equation}
+                                            \mathbf{E}^{n+1}_{p2} = -\mathbf{u_e}^{n+1}\times\mathbf{B}_{p2}^{n+1} - \frac{1}{en^{n+1}}\nabla P_e^{n+1} + \eta \mathbf{j}^{n+1} - \nu\nabla^2\mathbf{j}^{n+1}
+                                            \label{eq:ohm_p2}
+                                        \end{equation}
+                                    </p>
+
+                                <p>
+                                    From which we can again take the time centered average : <br/>
+                                        \begin{eqnarray}
+                                            \mathbf{E}^{n+1/2}_{p1} &=& \frac{1}{2}(\mathbf{E}^n + \mathbf{E}^{n+1}_{p2}) \\
+                                            \mathbf{B}^{n+1/2}_{p1} &=& \frac{1}{2}(\mathbf{B}^n + \mathbf{B}^{n+1}_{p2})
+                                        \end{eqnarray}
+                                    </p>
+
+                                    <p>
+                                        And push again the particles, to \(t=n+1\) one last time:
+
+                                        \begin{equation}
+                                            \mathbf{r}^n \to \mathbf{r}^{n+1}\\                                            
+                                        \end{equation}
+                                        \begin{equation}
+                                            \mathbf{v}^n \to \mathbf{v}^{n+1}\\
+                                        \end{equation}
+                                        <br/>
+                                        And update the total density and ion bulk velocity at \(t=n+1\).
+                                    </p>
+
+                                    <p>
+                                        At this point since we just got a better time centered electric field, we compute Faraday's law one last time
+                                        to get the final version of the magnetic field
+                                    </p>
+
+
+
+                                    <p>
+                                        \begin{equation}
+                                            \mathbf{B}^{n+1} = \mathbf{B}^{n} - \Delta t \nabla \times \mathbf{E}^{n+1/2}
+                                            \label{eq:faraday_c}
+                                        \end{equation}
+                                    </p>
+
+                                    <p>
+                                        And using the just obtained magnetic field, together with newly calculated moments, we compute Ohm's law one last time to get our final version of the electric field:
+                                    </p>
+
+
+                                  <p>
+                                        \begin{equation}
+                                            \mathbf{E}^{n+1} = -\mathbf{u_e}^{n+1}\times\mathbf{B}^{n+1} - \frac{1}{en^{n+1}}\nabla P_e^{n+1} + \eta \mathbf{j}^{n+1} - \nu\nabla^2\mathbf{j}^{n+1}
+                                            \label{eq:ohm_c}
+                                        \end{equation}
+                                    </p>
 
 
                                     <!-- ------------------------------------------------------
