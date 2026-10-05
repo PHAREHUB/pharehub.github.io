@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+{% set p = v.period %}
+{% set h = v.headline %}
+{% set GH = "https://github.com/PHAREHUB/PHARE" %}
+
+{% macro who(login) %}<a href="https://github.com/{{ login }}">@{{ login }}</a>{% endmacro %}
+{% macro labels(ls) %}{% for l in ls %}<span class="chip">{{ l }}</span>{% endfor %}{% endmacro %}
+{% macro diff(x) %}<span class="mono"><span class="plus">+{{ x.additions | num }}</span> <span class="minus">−{{ x.deletions | num }}</span></span>{% endmacro %}
+
+{% macro waterfall_chart(wf, title) %}
+<div class="wf" style="--cols: {{ wf.bars | length }}" role="img" aria-label="{{ title }}">
+  {% for b in wf.bars %}
+  <div class="col">
+    <div class="bar {{ b.cls }} {{ b.dir }}" style="bottom: {{ b.bottom }}%; height: {{ b.height }}%"
+         data-tip="{{ b.label }}: {{ '%+d' | format(b.value) if b.cls != 'total' else b.value }}"></div>
+    <div class="v" style="bottom: calc({{ b.bottom + b.height }}% + 2px)">{{ '%+d' | format(b.value) if b.cls != "total" else b.value }}</div>
+  </div>
+  {% endfor %}
+  {% for b in wf.bars %}<div class="lab">{{ b.label }}</div>{% endfor %}
+</div>
+{% if wf.floor %}<span class="wf-note">The axis starts at {{ wf.floor }} so the weekly changes stay visible.</span>{% endif %}
+{% endmacro %}
+
+{% macro item_list(items, closed=False) %}
+<ul class="items">
+{% for i in items %}
+  <li>
+    <span class="n"><a href="{{ i.url }}">#{{ i.number }}</a></span>
+    <span class="t">{{ i.title }}</span>
+    <span class="meta">
+      {% if closed %}
+        <span class="pill {{ 'ok' if i.outcome == 'completed' else 'neutral' }}">{{ i.outcome }}</span>
+        {% if i.how.kind == "pr" %}fixed by <a href="{{ GH }}/pull/{{ i.how.ref }}">PR #{{ i.how.ref }}</a>
+        {% elif i.how.kind == "commit" %}fixed by commit <a class="mono" href="{{ GH }}/commit/{{ i.how.ref }}">{{ i.how.ref }}</a>
+        {% else %}closed by {{ who(i.how.by) }}, no linked PR or commit{% endif %}
+      {% else %}{{ who(i.author) }}{% endif %}
+      {{ labels(i.labels) }}
+    </span>
+    {% if closed and i.how.kind == "manual" and i.how.comment %}<blockquote>{{ i.how.comment | truncate(220) }}</blockquote>{% endif %}
+  </li>
+{% endfor %}
+</ul>
+{% endmacro %}
+
+{% block title %}PHARE week {{ p.name[-2:] }}, {{ p.name[:4] }}{% endblock %}
+
+{% block body %}
+<header class="top">
+  <nav class="crumbs" aria-label="Report navigation">
+    <a href="{{ root }}index.html">All reports</a><span class="sep">/</span>
+    {% if prev_name %}<a href="{{ prev_name }}.html">← {{ prev_name }}</a>{% else %}<span>← no earlier report</span>{% endif %}
+    {% if next_name %}<a href="{{ next_name }}.html">{{ next_name }} →</a>{% endif %}
+    <span class="sep">/</span><a href="{{ GH }}">PHAREHUB/PHARE</a>
+  </nav>
+  <span class="eyebrow">WEEKLY REPORT · ISO {{ p.name }}</span>
+  <h1>PHARE, {{ p.start.strftime("%-d %b") }} – {{ p.last_day.strftime("%-d %b %Y") }}</h1>
+</header>
+
+<div class="kpis">
+  {% for k in kpis %}
+  <div class="kpi">
+    <span class="label">{{ k.title }}</span>
+    <div class="row"><span class="value">{{ k.value | num }}</span>
+      {% if k.delta is not none %}<span class="delta">{{ "▲" if k.delta > 0 else ("▼" if k.delta < 0 else "") }} {{ "%+d" | format(k.delta) if k.delta else "same" }} vs last week</span>{% endif %}</div>
+    {{ k.spark | safe }}
+  </div>
+  {% endfor %}
+</div>
+
+<section id="glance">
+  <header><h2>The week at a glance</h2><span class="muted">each dot is one event · hover for details, click to open</span></header>
+  <div class="panel">
+    <div class="tl" style="--n: {{ timeline.days | length }}">
+      <span></span>
+      <div class="axisrow">{% for d in timeline.days %}<span style="left: {{ d.left }}%"><b class="long">{{ d.label }}</b><b class="short">{{ d.short }}</b></span>{% endfor %}</div>
+      <span></span>
+      {% for lane in timeline.lanes %}
+      <span class="lab"><span class="sw {{ lane.cls }}"></span>{{ lane.name }}</span>
+      <div class="track">
+        {% for e in lane.events %}
+          {% if e.href %}<a class="dot {{ lane.cls }}" href="{{ e.href }}" style="left: {{ e.left }}%; --r: {{ '%.1f' | format(e.r) }}" data-tip="{{ e.tip }}" aria-label="{{ e.tip }}"></a>
+          {% else %}<span class="dot {{ lane.cls }}" style="left: {{ e.left }}%; --r: {{ '%.1f' | format(e.r) }}" data-tip="{{ e.tip }}"></span>{% endif %}
+        {% endfor %}
+      </div>
+      <span class="cnt">{{ lane.count }}</span>
+      {% endfor %}
+    </div>
+  </div>
+  <details>
+    <summary>Daily numbers as a table</summary>
+    <div class="tablebox"><table>
+      <thead><tr><th>Day</th>{% for key, title in [("commits","Commits"),("issues_opened","Issues opened"),("issues_closed","Issues closed"),("prs_opened","PRs opened"),("prs_merged","PRs merged"),("prs_closed","PRs closed"),("reviews","Reviews"),("comments","Comments"),("ci_builds","CI builds"),("ci_failed","CI failed")] %}<th class="num">{{ title }}</th>{% endfor %}</tr></thead>
+      <tbody>{% for d in v.days %}<tr><td>{{ d.date.strftime("%a %-d %b") }}</td>{% for key in ["commits","issues_opened","issues_closed","prs_opened","prs_merged","prs_closed","reviews","comments","ci_builds","ci_failed"] %}<td class="num{{ ' zero' if not d.get(key) }}">{{ d.get(key, 0) }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+    </table></div>
+  </details>
+</section>
+
+<section id="issues">
+  <header><h2>Issues</h2><span class="muted">{{ h.issues_opened }} opened · {{ h.issues_closed }} closed</span></header>
+  <div class="grid3">
+    <div class="panel"><h3>Open issues</h3>{{ waterfall_chart(issue_wf, "Open issues over the week") }}</div>
+    <div class="panel">
+      <h3>Labels on new issues</h3>
+      {% if issue_labels %}
+      <div class="hb">{% for r in issue_labels %}<span class="name">{{ r.label }}</span><div class="bar c2" style="width: {{ r.pct }}%" data-tip="{{ r.label }}: {{ r.n }} new issues"></div><span class="n">{{ r.n }}</span>{% endfor %}</div>
+      {% else %}<p class="empty">No issue opened this week.</p>{% endif %}
+    </div>
+    <div class="panel">
+      <h3>How closed issues were closed</h3>
+      {% if outcomes %}
+      <div class="split" role="img" aria-label="closing outcomes">{% for o in outcomes %}<span class="{{ o.cls }}" style="flex: {{ o.n }}" data-tip="{{ o.label }}: {{ o.n }}"></span>{% endfor %}</div>
+      <div class="legend">{% for o in outcomes %}<span><i style="background: var(--k)" class="{{ o.cls }}"></i>{{ o.label }} <span class="n">{{ o.n }}</span></span>{% endfor %}</div>
+      {{ item_list(v.issues_closed, closed=True) }}
+      {% else %}<p class="empty">No issue closed this week.</p>{% endif %}
+    </div>
+  </div>
+  {% if v.issues_opened %}
+  <details><summary>All {{ v.issues_opened | length }} new issues</summary>{{ item_list(v.issues_opened) }}</details>
+  {% endif %}
+</section>
+
+<section id="prs">
+  <header><h2>Pull requests</h2><span class="muted">{{ h.prs_merged }} merged · {{ h.prs_opened }} opened · {{ h.prs_closed }} closed unmerged</span></header>
+  <div class="grid3">
+    <div class="panel"><h3>Open PRs</h3>{{ waterfall_chart(pr_wf, "Open pull requests over the week") }}</div>
+    <div class="panel" style="grid-column: span 2; min-width: min(100%, 300px)">
+      <h3>Every PR that moved this week</h3>
+      {% if prs.rows %}
+      <div class="legend">
+        <span><i class="c7" style="background: var(--k)"></i>merged</span><span><i class="c3" style="background: var(--k)"></i>open</span>
+        <span><i class="c-other" style="background: var(--k)"></i>draft or closed</span>
+        <span><i style="background: var(--ink); width: 2px"></i>first human review</span>
+      </div>
+      <div class="prc">
+        <span class="h"></span><span class="h ttl-h"></span>
+        <div class="h">Time open (log scale)<div class="ticks">{% for t in prs.age_ticks %}<span style="left: {{ t.left }}%">{{ t.label }}</span>{% endfor %}</div></div>
+        <div class="h">Lines changed, by area (log scale)<div class="ticks">{% for t in prs.size_ticks %}<span style="left: {{ t.left }}%">{{ t.label }}</span>{% endfor %}</div></div>
+        {% for x in prs.rows %}
+        {% set scls = {"merged": "c7", "open": "c3", "draft": "c-other", "closed": "c-other"}[x.state] %}
+        <span class="rule"></span>
+        <span class="num"><span class="st {{ scls }}"></span><a href="{{ x.url }}">{{ x.number }}</a></span>
+        <span class="ttl" data-tip="#{{ x.number }} {{ x.title }}">{{ x.title }}<span class="who">@{{ x.author }}</span></span>
+        <div class="lane lane-age" data-tip="{{ x.state }}, open {{ x.open_days | days }}{% if x.first_review_h %}, first human review after {{ x.first_review_h | hours }}{% else %}, no human review{% endif %}{% if x.reviewers %} ({{ x.reviewers | join(', ') }}){% endif %}">
+          <div class="fill {{ scls }}" style="width: {{ x.age_pct }}%"></div>
+          {% if x.review_pct is not none %}<div class="mark" style="left: {{ x.review_pct }}%"></div>{% endif %}
+        </div>
+        <div class="lane lane-size" data-tip="+{{ x.additions | num }} −{{ x.deletions | num }} in {{ x.changed_files }} files{% for s in x.segments %} · {{ s.area }} {{ s.lines | num }}{% endfor %}">
+          <div class="segs" style="width: {{ x.size_pct }}%">{% for s in x.segments %}<span class="{{ s.cls }}" style="flex: {{ s.lines }}"></span>{% endfor %}</div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="legend">{% for a in prs.areas %}<span><i class="{{ a.cls }}" style="background: var(--k)"></i>{{ a.area }}</span>{% endfor %}</div>
+      {% else %}<p class="empty">No PR opened, merged or closed this week.</p>{% endif %}
+    </div>
+  </div>
+</section>
+
+<section id="people">
+  <header><h2>People</h2><span class="muted">human activity inside the week · darker = more</span></header>
+  <div class="grid3">
+    <div class="panel" style="grid-column: span 2; min-width: min(100%, 300px)">
+      <h3>Who did what</h3>
+      <div style="overflow-x: auto"><table class="heat">
+        <thead><tr><th></th>{% for c in people.columns %}<th>{{ c }}</th>{% endfor %}<th>Lines on master</th></tr></thead>
+        <tbody>
+        {% for r in people.rows %}
+          <tr><th class="row">{{ who(r.login) }}{% if r.first_time %} <span class="pill ok">first PR</span>{% endif %}</th>
+            {% for c in r.cells %}<td class="{{ 'z' if not c.v }}" style="--s: {{ c.shade }}">{{ c.v or "·" }}</td>{% endfor %}
+            <td style="--s: 0">{% if r.lines_added or r.lines_removed %}<span class="mono plus">+{{ r.lines_added | num }}</span> <span class="mono minus">−{{ r.lines_removed | num }}</span>{% else %}<span class="zero">·</span>{% endif %}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table></div>
+      {% if people.bots %}<p class="muted" style="margin: 0; font-size: 12.5px">Bots: {% for b in people.bots %}{{ b.login }} ({{ b.get("reviews", 0) }} reviews, {{ b.get("comments", 0) }} comments){{ ", " if not loop.last }}{% endfor %}.</p>{% endif %}
+    </div>
+    <div class="panel">
+      <h3>Who reviewed whom</h3>
+      {% if matrix.rows %}
+      <div style="overflow-x: auto"><table class="heat">
+        <thead><tr><th style="text-align: left">reviewer ↓ · author →</th>{% for a in matrix.authors %}<th>{{ a }}</th>{% endfor %}</tr></thead>
+        <tbody>{% for r in matrix.rows %}<tr><th class="row">{{ r.reviewer }}</th>{% for c in r.cells %}<td class="{{ 'z' if not c.v }}" style="--s: {{ c.shade }}" data-tip="{{ r.reviewer }} reviewed {{ c.author }}: {{ c.v }}">{{ c.v or "·" }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+      </table></div>
+      <div class="tiles" style="grid-template-columns: 1fr 1fr">
+        <div class="tile"><span class="label">Median first review</span><span class="value" style="font-size: 22px">{{ v.review_times.first_review_h_median | hours }}</span></div>
+        <div class="tile"><span class="label">Median time to merge</span><span class="value" style="font-size: 22px">{{ (v.review_times.merge_days_median * 24) | hours if v.review_times.merge_days_median is not none else "–" }}</span></div>
+      </div>
+      {% else %}<p class="empty">No human review this week.</p>{% endif %}
+    </div>
+  </div>
+  {% if v.current and (v.waiting_for_review or v.stale_prs) %}
+  <details>
+    <summary>{{ v.waiting_for_review | length }} open PRs waiting for a first human review · {{ v.stale_prs | length }} with no activity for 30 days (as of {{ v.generated_at.strftime("%-d %b") }})</summary>
+    <div class="grid2">
+      <div><h3>Waiting for review</h3><ul class="items">{% for x in v.waiting_for_review | sort(attribute="open_days", reverse=True) %}<li><span class="n"><a href="{{ x.url }}">#{{ x.number }}</a></span><span class="t">{{ x.title }}</span><span class="meta">{{ who(x.author) }} <span class="muted">open {{ x.open_days | days }}</span></span></li>{% endfor %}</ul></div>
+      <div><h3>Stale</h3><ul class="items">{% for x in v.stale_prs | sort(attribute="open_days", reverse=True) %}<li><span class="n"><a href="{{ x.url }}">#{{ x.number }}</a></span><span class="t">{{ x.title }}</span><span class="meta">{{ who(x.author) }} <span class="muted">open {{ x.open_days | days }}</span></span></li>{% endfor %}</ul></div>
+    </div>
+  </details>
+  {% endif %}
+</section>
+
+<section id="ci">
+  <header><h2>CI and tests</h2>
+    {% if v.teamcity.tests %}<span class="muted">{{ v.teamcity.tests.runs | num }} test executions on TeamCity · {{ v.teamcity.tests.failed }} failed · {{ v.teamcity.tests.ignored }} ignored</span>{% endif %}
+  </header>
+  {% if v.teamcity_partial %}
+  <p class="callout" style="margin: 0">TeamCity only keeps about 200 builds per configuration, so this week is incomplete for
+    {% for c in v.teamcity_partial %}<span class="mono">{{ c.config }}</span> (history starts {{ c.since[:10] }}){{ ", " if not loop.last }}{% endfor %}.</p>
+  {% endif %}
+  {% if v.teamcity.error %}<p class="callout" style="margin: 0">TeamCity was unreachable when this report was generated, so only GitHub Actions is shown.</p>{% endif %}
+  <div class="panel">
+    <div class="legend"><span><i class="ok" style="background: var(--k)"></i>passed</span><span><i class="bad" style="background: var(--k)"></i>failed</span><span><i class="skip" style="background: var(--k)"></i>canceled</span><span class="muted">one tick per build, placed at its finish time</span></div>
+    <div class="ci" style="--n: {{ timeline.days | length }}">
+      <span></span><div class="axisrow">{% for d in timeline.days %}<span style="left: {{ d.left }}%"><b class="long">{{ d.label }}</b><b class="short">{{ d.short }}</b></span>{% endfor %}</div><span></span>
+      {% for g in ci %}
+        <span class="grp">{{ g.title }}</span>
+        {% for l in g.lanes %}
+        <span class="name" title="{{ l.name }}">{{ l.name }}</span>
+        <div class="strip">{% for t in l.ticks %}<span class="tick {{ t.cls }}" style="left: {{ t.left }}%" data-tip="{{ t.tip }}"></span>{% endfor %}</div>
+        <span class="counts"><b class="okc">{{ l.ok }}</b> ✓ · <b class="{{ 'badc' if l.bad }}">{{ l.bad }}</b> ✗ · {{ l.skip }} canceled{% if l.tests %} · {{ l.tests | num }} tests run{% endif %}</span>
+        {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+  {% if v.teamcity.failing_tests or v.teamcity.flaky or v.teamcity.green_reruns %}
+  <div class="grid2">
+    {% if v.teamcity.failing_tests %}
+    <div class="panel"><h3>Tests that failed</h3>
+      {% set fmax = v.teamcity.failing_tests[0][1] %}
+      <div class="hb">{% for name, n in v.teamcity.failing_tests %}<span class="name mono" style="max-width: 22em" title="{{ name }}">{{ name }}</span><div class="bar bad" style="width: {{ 100 * n / fmax }}%"></div><span class="n">{{ n }}</span>{% endfor %}</div>
+    </div>
+    {% endif %}
+    {% if v.teamcity.flaky or v.teamcity.green_reruns %}
+    <div class="panel"><h3>Red, then green on the same commit</h3>
+      {% for f in v.teamcity.flaky %}<p style="margin: 0; font-size: 13px"><span class="pill bad">flaky?</span> <span class="mono">{{ f.failed_tests | join(", ") }}</span> on {{ f.config }} at <span class="mono">{{ f.revision }}</span></p>{% endfor %}
+      {% if v.teamcity.green_reruns %}<p class="muted" style="margin: 0; font-size: 13px">{{ v.teamcity.green_reruns }} reruns turned a red build green with no failing test: a build or infrastructure problem, not a test.</p>{% endif %}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+</section>
+
+<section id="code">
+  <header><h2>Code on master</h2><span class="muted">{{ h.commits }} commits · lines removed ← → lines added</span></header>
+  <div class="grid2">
+    <div class="panel">
+      <h3>Where the code changed</h3>
+      {% if churn %}
+      <div class="churn">
+        {% for c in churn %}
+        <span class="name"><span class="sw {{ c.cls }}"></span>{{ c.area }}</span>
+        <div class="l" data-tip="{{ c.area }}: −{{ c.deletions | num }} lines">{% if c.deletions %}<em>{{ c.deletions | num }}</em>{% endif %}<i style="width: {{ c.del_pct }}%"></i></div>
+        <div class="r" data-tip="{{ c.area }}: +{{ c.additions | num }} lines in {{ c.files }} files"><i style="width: {{ c.add_pct }}%"></i>{% if c.additions %}<em>{{ c.additions | num }}</em>{% endif %}</div>
+        {% endfor %}
+      </div>
+      {% else %}<p class="empty">No commit on master this week.</p>{% endif %}
+    </div>
+    <div class="panel">
+      <h3>Commits</h3>
+      {% if v.commits %}<details><summary>{{ v.commits | length }} commits on master (also dots on the timeline)</summary><ul class="items">
+      {% for c in v.commits %}
+        <li><span class="n"><a href="{{ GH }}/commit/{{ c.sha }}">{{ c.sha[:7] }}</a></span><span class="t">{{ c.headline }}</span>
+          <span class="meta">{{ who(c.author) }} {{ diff(c) }}</span></li>
+      {% endfor %}
+      </ul></details>{% else %}<p class="empty">No commit on master this week.</p>{% endif %}
+    </div>
+  </div>
+</section>
+
+{% if v.releases or v.discussions %}
+<section id="community">
+  <header><h2>Releases and discussions</h2></header>
+  <ul class="items">
+    {% for r in v.releases %}<li><span class="n mono">{{ r.tag }}</span><span class="t"><a href="{{ r.url }}">{{ r.name or r.tag }}</a></span><span class="meta">release · {{ who(r.author) }}</span></li>{% endfor %}
+    {% for d in v.discussions %}<li><span class="n"><a href="{{ d.url }}">#{{ d.number }}</a></span><span class="t">{{ d.title }}</span><span class="meta">discussion · {{ who(d.author) }} <span class="chip">{{ d.category }}</span></span></li>{% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PHARE activity reports</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column, summary first (tiles, daily small multiples), then detail sections. */
+:root {
+  --bg: #f6f7f9; --surface: #fdfdfe; --ink: #0d1117; --ink-2: #4a5160; --muted: #848b98;
+  --line: #e1e4ea; --axis: #c3c8d1; --accent: #2a78d6; --accent-wash: rgba(42,120,214,.10);
+  --ok: #0ca30c; --bad: #d03b3b; --warn: #c98500; --chip: #eceff4;
+  --c1: #2a78d6; --c2: #eb6834; --c3: #1baf7a; --c4: #eda100; --c5: #e87ba4; --c6: #008300; --c7: #4a3aa7; --c-other: #a3a9b4;
+  --sans: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0e1013; --surface: #16191e; --ink: #f3f4f6; --ink-2: #c0c5ce; --muted: #8a909b;
+  --line: #262a31; --axis: #383d46; --accent: #3987e5; --accent-wash: rgba(57,135,229,.14);
+  --ok: #0ca30c; --bad: #e05555; --warn: #e0a020; --chip: #232830; color-scheme: dark;
+  --c1: #3987e5; --c2: #d95926; --c3: #199e70; --c4: #c98500; --c5: #d55181; --c6: #008300; --c7: #9085e9; --c-other: #5d636d;
+} }
+:root[data-theme="dark"] {
+  --bg: #0e1013; --surface: #16191e; --ink: #f3f4f6; --ink-2: #c0c5ce; --muted: #8a909b;
+  --line: #262a31; --axis: #383d46; --accent: #3987e5; --accent-wash: rgba(57,135,229,.14);
+  --ok: #0ca30c; --bad: #e05555; --warn: #e0a020; --chip: #232830; color-scheme: dark;
+  --c1: #3987e5; --c2: #d95926; --c3: #199e70; --c4: #c98500; --c5: #d55181; --c6: #008300; --c7: #9085e9; --c-other: #5d636d;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--sans); }
+.wrap { max-width: 1080px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 64px; display: grid; gap: 36px; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; line-height: 1.2; }
+h1 { font-size: 30px; font-weight: 700; letter-spacing: -.01em; }
+h2 { font-size: 20px; font-weight: 600; }
+h3 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); }
+.mono, code { font-family: var(--mono); font-size: .9em; }
+.muted { color: var(--muted); }
+.sub { color: var(--ink-2); }
+.num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+
+header.top { display: grid; gap: 10px; }
+.crumbs { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted); }
+.crumbs .sep { color: var(--axis); }
+.eyebrow { font: 500 12px/1 var(--mono); color: var(--muted); letter-spacing: .04em; }
+
+section { display: grid; gap: 14px; min-width: 0; }
+section > header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px;
+  border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 24px; }
+.grid2 > * { min-width: 0; display: grid; gap: 10px; align-content: start; }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px;
+  background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.tile { background: var(--surface); padding: 14px 16px; display: grid; gap: 2px; }
+.tile .label { font-size: 13px; color: var(--ink-2); }
+.tile .value { font-size: 28px; font-weight: 600; letter-spacing: -.01em; }
+.tile .note { font-size: 12px; color: var(--muted); }
+
+.smalls { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr)); gap: 12px; }
+.small { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px 6px; }
+.small .head { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-2); }
+.small .head b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.chart { width: 100%; height: auto; display: block; overflow: visible; }
+.chart .axis { stroke: var(--axis); stroke-width: 1; }
+.chart .tick { fill: var(--muted); font: 10px var(--sans); }
+.chart .val { fill: var(--ink-2); font: 600 10px var(--sans); }
+.chart .hit { fill: transparent; }
+.m-accent { fill: var(--accent); }
+.m-ok { fill: var(--ok); }
+.m-bad { fill: var(--bad); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--ink-2); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.ciwrap { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 8px; }
+
+ul.items { list-style: none; margin: 0; padding: 0; display: grid; }
+ul.items li { display: grid; grid-template-columns: 4.2em 1fr; gap: 2px 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+ul.items li:first-child { border-top: 0; }
+ul.items .n { font: 500 13px/1.6 var(--mono); color: var(--muted); }
+ul.items .t { min-width: 0; overflow-wrap: anywhere; }
+ul.items .meta { grid-column: 2; font-size: 13px; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
+.chip { display: inline-block; font-size: 11.5px; line-height: 1.6; padding: 0 7px; border-radius: 999px; background: var(--chip); color: var(--ink-2); }
+.pill { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 0 8px; border-radius: 999px; line-height: 1.7; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pill.ok { color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, transparent); }
+.pill.bad { color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, transparent); }
+.pill.neutral { color: var(--ink-2); background: var(--chip); }
+.pill.draft { color: var(--muted); background: var(--chip); }
+.plus { color: var(--ok); } .minus { color: var(--bad); }
+blockquote { margin: 2px 0 0; padding-left: 10px; border-left: 2px solid var(--line); color: var(--ink-2); font-size: 13px; grid-column: 2; }
+
+.tablebox { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { padding: 7px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+th { font-weight: 600; font-size: 12px; color: var(--ink-2); background: var(--bg); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.zero { color: var(--axis); }
+tbody tr.group td { background: var(--bg); font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+details > summary { cursor: pointer; color: var(--ink-2); font-size: 13.5px; }
+details[open] > summary { margin-bottom: 8px; }
+.empty { color: var(--muted); font-style: italic; font-size: 14px; }
+.callout { font-size: 13.5px; color: var(--ink-2); background: var(--accent-wash); border-radius: 8px; padding: 10px 12px; }
+
+
+/* ---- visual components ---- */
+.c1 { --k: var(--c1); } .c2 { --k: var(--c2); } .c3 { --k: var(--c3); } .c4 { --k: var(--c4); }
+.c5 { --k: var(--c5); } .c6 { --k: var(--c6); } .c7 { --k: var(--c7); } .c-other { --k: var(--c-other); }
+.ok { --k: var(--ok); } .bad { --k: var(--bad); } .skip { --k: var(--axis); } .total { --k: var(--ink-2); }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; background: var(--k); margin-right: 6px; vertical-align: -1px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 12px; min-width: 0; }
+.panel h3 { margin: 0; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; align-items: start; }
+.grid3 > * { min-width: 0; }
+
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px; background: var(--line);
+  border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.kpi { background: var(--surface); padding: 12px 14px 8px; display: grid; gap: 2px; align-content: start; }
+.kpi .label { font-size: 13px; color: var(--ink-2); }
+.kpi .row { display: flex; align-items: baseline; gap: 8px; }
+.kpi .value { font-size: 28px; font-weight: 600; letter-spacing: -.01em; }
+.kpi .delta { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.spark { width: 100%; height: 30px; display: block; }
+.spark-line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.spark-area { fill: var(--accent-wash); }
+.spark-dot { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
+
+.tl { display: grid; grid-template-columns: minmax(6.5em, 10em) 1fr 2.4em; align-items: center; }
+.tl .lab { font-size: 13px; color: var(--ink-2); padding-right: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tl .cnt { font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.track { position: relative; height: 32px; border-top: 1px solid var(--line);
+  background-image: linear-gradient(to right, var(--line) 1px, transparent 1px); background-size: calc(100% / var(--n, 7)) 100%; }
+.tl > .track:last-of-type { border-bottom: 1px solid var(--line); }
+.dot { position: absolute; top: 50%; width: calc(var(--r) * 2px); height: calc(var(--r) * 2px); border-radius: 50%;
+  transform: translate(-50%, -50%); background: var(--k); box-shadow: 0 0 0 2px var(--surface); }
+a.dot:hover, a.dot:focus-visible { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--k); outline: none; z-index: 2; }
+.axisrow { position: relative; height: 20px; font-size: 11.5px; color: var(--muted); }
+.axisrow span { position: absolute; transform: translateX(-50%); white-space: nowrap; top: 3px; }
+.axisrow b { font-weight: 400; } .axisrow .short { display: none; }
+
+.wf { display: grid; grid-template-columns: repeat(var(--cols), 1fr); gap: 8px; }
+.wf .col { position: relative; height: 150px; border-bottom: 1px solid var(--axis); }
+.wf .bar { position: absolute; left: 18%; right: 18%; border-radius: 4px 4px 0 0; background: var(--k); min-height: 2px; }
+.wf .bar.down { border-radius: 0 0 4px 4px; }
+.wf .v { position: absolute; left: 0; right: 0; text-align: center; font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.wf .lab { font-size: 11.5px; color: var(--muted); text-align: center; line-height: 1.25; padding-top: 4px; }
+.wf-note { font-size: 11.5px; color: var(--muted); }
+
+.hb { display: grid; grid-template-columns: minmax(5em, max-content) 1fr 2.2em; gap: 6px 10px; align-items: center; font-size: 13px; }
+.hb .name { color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 14em; }
+.hb .bar { height: 12px; border-radius: 0 4px 4px 0; background: var(--k, var(--accent)); min-width: 2px; }
+.hb .n { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+
+.split { display: flex; gap: 2px; height: 18px; border-radius: 4px; overflow: hidden; }
+.split > span { background: var(--k); min-width: 4px; }
+.legend .n { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+.prc { display: grid; grid-template-columns: 4.6em minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr); gap: 0 14px; align-items: center; font-size: 13px; }
+.prc > .h { font-size: 11.5px; color: var(--muted); padding-bottom: 4px; }
+.prc .ticks { position: relative; height: 16px; }
+.prc .ticks span { position: absolute; transform: translateX(-50%); font-size: 11px; color: var(--muted); white-space: nowrap; }
+.prc .ticks span:first-child { transform: none; }
+.prc .num a { font: 500 12.5px var(--mono); }
+.prc .ttl { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-block: 7px; }
+.prc .ttl .who { color: var(--muted); font-size: 12px; margin-left: 6px; }
+.prc .rule { grid-column: 1 / -1; border-top: 1px solid var(--line); }
+.lane { position: relative; height: 12px; background-image: linear-gradient(to right, var(--line) 1px, transparent 1px);
+  background-size: 25% 100%; }
+.lane .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 0 4px 4px 0; background: var(--k); }
+.lane .mark { position: absolute; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; background: var(--ink); border-radius: 1px; }
+.lane .segs { position: absolute; left: 0; top: 0; bottom: 0; display: flex; gap: 2px; }
+.lane .segs span { background: var(--k); min-width: 2px; }
+.lane .segs span:last-child { border-radius: 0 4px 4px 0; }
+.st { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--k); margin-right: 5px; }
+
+.heat { border-collapse: separate; border-spacing: 2px; width: 100%; font-size: 13px; }
+.heat th { background: none; border: 0; font-weight: 500; font-size: 11.5px; color: var(--muted); padding: 2px 4px; text-align: center; white-space: normal; line-height: 1.2; }
+.heat th.row { text-align: left; font-size: 13px; color: var(--ink); white-space: nowrap; }
+.heat td { border: 0; text-align: center; padding: 6px 4px; border-radius: 4px; font-variant-numeric: tabular-nums;
+  background: color-mix(in srgb, var(--accent) calc(var(--s) * 1%), var(--bg)); }
+.heat td.z { color: var(--axis); }
+
+.ci { display: grid; grid-template-columns: minmax(8em, 15em) 1fr auto; gap: 0 12px; align-items: center; font-size: 12.5px; }
+.ci .grp { grid-column: 1 / -1; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; padding: 12px 0 4px; }
+.ci .name { font-family: var(--mono); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-block: 5px; }
+.ci .strip { position: relative; height: 20px; border-left: 1px solid var(--line); border-right: 1px solid var(--line);
+  background-image: linear-gradient(to right, var(--line) 1px, transparent 1px); background-size: calc(100% / var(--n, 7)) 100%; }
+.ci .tick { position: absolute; top: 2px; bottom: 2px; width: 3px; margin-left: -1.5px; border-radius: 1.5px; background: var(--k); }
+.ci .tick.bad { top: 0; bottom: 0; width: 4px; z-index: 1; }
+.ci .counts { font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ink-2); text-align: right; }
+.ci .counts b { font-weight: 600; }
+.ci .counts .okc { color: var(--ok); } .ci .counts .badc { color: var(--bad); }
+
+.churn { display: grid; grid-template-columns: minmax(6em, max-content) 1fr 1fr; gap: 6px 0; align-items: center; font-size: 13px; }
+.churn .name { padding-right: 12px; white-space: nowrap; }
+.churn .l, .churn .r { display: flex; align-items: center; gap: 6px; height: 14px; font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.churn .l { justify-content: flex-end; border-right: 1px solid var(--axis); padding-right: 0; }
+.churn .l i { display: block; height: 12px; background: var(--bad); border-radius: 4px 0 0 4px; opacity: .85; }
+.churn .r i { display: block; height: 12px; background: var(--ok); border-radius: 0 4px 4px 0; opacity: .85; }
+.churn .l em, .churn .r em { font-style: normal; color: var(--muted); }
+
+@media (max-width: 720px) {
+  .axisrow .long { display: none; } .axisrow .short { display: inline; }
+  .prc { grid-template-columns: 4.2em minmax(0, 1fr) minmax(0, 1fr); }
+  .prc .ttl { grid-column: 2 / -1; padding-bottom: 2px; }
+  .prc .lane-age { grid-column: 2; margin-bottom: 9px; }
+  .prc .lane-size { grid-column: 3; margin-bottom: 9px; }
+  .prc .h.ttl-h { display: none; }
+  .prc .num { grid-row: span 2; align-self: start; padding-top: 7px; }
+  .ci { grid-template-columns: minmax(6em, 9em) 1fr; }
+  .ci .counts { grid-column: 2; text-align: left; padding-bottom: 6px; }
+}
+#tip { position: fixed; pointer-events: none; z-index: 10; background: var(--ink); color: var(--bg); font-size: 12.5px;
+  padding: 4px 8px; border-radius: 6px; max-width: min(90vw, 460px); white-space: normal; transform: translate(-50%, calc(-100% - 10px)); }
+footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
+@media (max-width: 560px) { h1 { font-size: 24px; } .tile .value { font-size: 23px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <nav class="crumbs" aria-label="Site navigation">
+    <a href="../index.html">PHARE home</a><span class="sep">/</span><a href="https://github.com/PHAREHUB/PHARE">PHAREHUB/PHARE</a>
+  </nav>
+  <span class="eyebrow">ACTIVITY REPORTS</span>
+  <h1>What happened in PHARE, week by week</h1>
+  <p class="sub" style="margin:0;max-width:65ch">Each report covers one ISO week (Monday to Sunday, UTC): issues and pull requests
+    opened, closed and merged, who did what, reviews, and how the CI and the test suite behaved.
+    A new report is published every Monday morning.</p>
+</header>
+
+<section id="trend">
+  <header><h2>Trend</h2><span class="muted">14 weeks archived</span></header>
+  <div class="smalls">
+    <div class="small"><div class="head"><span>Commits on master</span><b>9</b></div><svg class="chart" viewBox="0 0 210 72" role="img" preserveAspectRatio="xMidYMid meet"><line class="axis" x1="0" x2="210" y1="56.5" y2="56.5"/><path class="m-accent" d="M2.8,56.0 V37.6 Q2.8,33.6 6.8,33.6 H8.2 Q12.2,33.6 12.2,37.6 V56.0 Z" data-tip="2026-W27: 8 commits on master"><title>2026-W27: 8 commits on master</title></path><rect class="hit" x="0.0" y="0" width="15.0" height="72" data-tip="2026-W27: 8 commits on master"/><text class="tick" x="7.5" y="69" text-anchor="middle">W27</text><path class="m-accent" d="M17.9,56.0 V51.6 Q17.9,47.6 21.9,47.6 H23.2 Q27.2,47.6 27.2,51.6 V56.0 Z" data-tip="2026-W28: 3 commits on master"><title>2026-W28: 3 commits on master</title></path><rect class="hit" x="15.0" y="0" width="15.0" height="72" data-tip="2026-W28: 3 commits on master"/><path class="m-accent" d="M32.9,56.0 V51.6 Q32.9,47.6 36.9,47.6 H38.2 Q42.2,47.6 42.2,51.6 V56.0 Z" data-tip="2026-W29: 3 commits on master"><title>2026-W29: 3 commits on master</title></path><rect class="hit" x="30.0" y="0" width="15.0" height="72" data-tip="2026-W29: 3 commits on master"/><path class="m-accent" d="M47.9,56.0 V18.0 Q47.9,14.0 51.9,14.0 H53.2 Q57.2,14.0 57.2,18.0 V56.0 Z" data-tip="2026-W30: 15 commits on master"><title>2026-W30: 15 commits on master</title></path><rect class="hit" x="45.0" y="0" width="15.0" height="72" data-tip="2026-W30: 15 commits on master"/><text class="val" x="52.5" y="10.0" text-anchor="middle">15</text><path class="m-accent" d="M62.9,56.0 V46.0 Q62.9,42.0 66.8,42.0 H68.2 Q72.2,42.0 72.2,46.0 V56.0 Z" data-tip="2026-W31: 5 commits on master"><title>2026-W31: 5 commits on master</title></path><rect class="hit" x="60.0" y="0" width="15.0" height="72" data-tip="2026-W31: 5 commits on master"/><path class="m-accent" d="M77.8,56.0 V34.8 Q77.8,30.8 81.8,30.8 H83.1 Q87.1,30.8 87.1,34.8 V56.0 Z" data-tip="2026-W32: 9 commits on master"><title>2026-W32: 9 commits on master</title></path><rect class="hit" x="75.0" y="0" width="15.0" height="72" data-tip="2026-W32: 9 commits on master"/><path class="m-accent" d="M92.8,56.0 V56.0 Q92.8,53.2 95.6,53.2 H99.3 Q102.1,53.2 102.1,56.0 V56.0 Z" data-tip="2026-W33: 1 commits on master"><title>2026-W33: 1 commits on master</title></path><rect class="hit" x="90.0" y="0" width="15.0" height="72" data-tip="2026-W33: 1 commits on master"/><rect class="hit" x="105.0" y="0" width="15.0" height="72" data-tip="2026-W34: 0 commits on master"/><text class="tick" x="112.5" y="69" text-anchor="middle">W34</text><rect class="hit" x="120.0" y="0" width="15.0" height="72" data-tip="2026-W35: 0 commits on master"/><rect class="hit" x="135.0" y="0" width="15.0" height="72" data-tip="2026-W36: 0 commits on master"/><rect class="hit" x="150.0" y="0" width="15.0" height="72" data-tip="2026-W37: 0 commits on master"/><path class="m-accent" d="M167.8,56.0 V54.4 Q167.8,50.4 171.8,50.4 H173.2 Q177.2,50.4 177.2,54.4 V56.0 Z" data-tip="2026-W38: 2 commits on master"><title>2026-W38: 2 commits on master</title></path><rect class="hit" x="165.0" y="0" width="15.0" height="72" data-tip="2026-W38: 2 commits on master"/><path class="m-accent" d="M182.8,56.0 V54.4 Q182.8,50.4 186.8,50.4 H188.2 Q192.2,50.4 192.2,54.4 V56.0 Z" data-tip="2026-W39: 2 commits on master"><title>2026-W39: 2 commits on master</title></path><rect class="hit" x="180.0" y="0" width="15.0" height="72" data-tip="2026-W39: 2 commits on master"/><path class="m-accent" d="M197.8,56.0 V34.8 Q197.8,30.8 201.8,30.8 H203.2 Q207.2,30.8 207.2,34.8 V56.0 Z" data-tip="2026-W40: 9 commits on master"><title>2026-W40: 9 commits on master</title></path><rect class="hit" x="195.0" y="0" width="15.0" height="72" data-tip="2026-W40: 9 commits on master"/></svg></div>
+    <div class="small"><div class="head"><span>PRs merged</span><b>7</b></div><svg class="chart" viewBox="0 0 210 72" role="img" preserveAspectRatio="xMidYMid meet"><line class="axis" x1="0" x2="210" y1="56.5" y2="56.5"/><path class="m-accent" d="M2.8,56.0 V53.0 Q2.8,49.0 6.8,49.0 H8.2 Q12.2,49.0 12.2,53.0 V56.0 Z" data-tip="2026-W27: 2 prs merged"><title>2026-W27: 2 prs merged</title></path><rect class="hit" x="0.0" y="0" width="15.0" height="72" data-tip="2026-W27: 2 prs merged"/><text class="tick" x="7.5" y="69" text-anchor="middle">W27</text><path class="m-accent" d="M17.9,56.0 V49.5 Q17.9,45.5 21.9,45.5 H23.2 Q27.2,45.5 27.2,49.5 V56.0 Z" data-tip="2026-W28: 3 prs merged"><title>2026-W28: 3 prs merged</title></path><rect class="hit" x="15.0" y="0" width="15.0" height="72" data-tip="2026-W28: 3 prs merged"/><path class="m-accent" d="M32.9,56.0 V49.5 Q32.9,45.5 36.9,45.5 H38.2 Q42.2,45.5 42.2,49.5 V56.0 Z" data-tip="2026-W29: 3 prs merged"><title>2026-W29: 3 prs merged</title></path><rect class="hit" x="30.0" y="0" width="15.0" height="72" data-tip="2026-W29: 3 prs merged"/><path class="m-accent" d="M47.9,56.0 V18.0 Q47.9,14.0 51.9,14.0 H53.2 Q57.2,14.0 57.2,18.0 V56.0 Z" data-tip="2026-W30: 12 prs merged"><title>2026-W30: 12 prs merged</title></path><rect class="hit" x="45.0" y="0" width="15.0" height="72" data-tip="2026-W30: 12 prs merged"/><text class="val" x="52.5" y="10.0" text-anchor="middle">12</text><path class="m-accent" d="M62.9,56.0 V46.0 Q62.9,42.0 66.8,42.0 H68.2 Q72.2,42.0 72.2,46.0 V56.0 Z" data-tip="2026-W31: 4 prs merged"><title>2026-W31: 4 prs merged</title></path><rect class="hit" x="60.0" y="0" width="15.0" height="72" data-tip="2026-W31: 4 prs merged"/><path class="m-accent" d="M77.8,56.0 V39.0 Q77.8,35.0 81.8,35.0 H83.1 Q87.1,35.0 87.1,39.0 V56.0 Z" data-tip="2026-W32: 6 prs merged"><title>2026-W32: 6 prs merged</title></path><rect class="hit" x="75.0" y="0" width="15.0" height="72" data-tip="2026-W32: 6 prs merged"/><rect class="hit" x="90.0" y="0" width="15.0" height="72" data-tip="2026-W33: 0 prs merged"/><rect class="hit" x="105.0" y="0" width="15.0" height="72" data-tip="2026-W34: 0 prs merged"/><text class="tick" x="112.5" y="69" text-anchor="middle">W34</text><rect class="hit" x="120.0" y="0" width="15.0" height="72" data-tip="2026-W35: 0 prs merged"/><rect class="hit" x="135.0" y="0" width="15.0" height="72" data-tip="2026-W36: 0 prs merged"/><rect class="hit" x="150.0" y="0" width="15.0" height="72" data-tip="2026-W37: 0 prs merged"/><path class="m-accent" d="M167.8,56.0 V56.0 Q167.8,52.5 171.3,52.5 H173.7 Q177.2,52.5 177.2,56.0 V56.0 Z" data-tip="2026-W38: 1 prs merged"><title>2026-W38: 1 prs merged</title></path><rect class="hit" x="165.0" y="0" width="15.0" height="72" data-tip="2026-W38: 1 prs merged"/><path class="m-accent" d="M182.8,56.0 V53.0 Q182.8,49.0 186.8,49.0 H188.2 Q192.2,49.0 192.2,53.0 V56.0 Z" data-tip="2026-W39: 2 prs merged"><title>2026-W39: 2 prs merged</title></path><rect class="hit" x="180.0" y="0" width="15.0" height="72" data-tip="2026-W39: 2 prs merged"/><path class="m-accent" d="M197.8,56.0 V35.5 Q197.8,31.5 201.8,31.5 H203.2 Q207.2,31.5 207.2,35.5 V56.0 Z" data-tip="2026-W40: 7 prs merged"><title>2026-W40: 7 prs merged</title></path><rect class="hit" x="195.0" y="0" width="15.0" height="72" data-tip="2026-W40: 7 prs merged"/></svg></div>
+    <div class="small"><div class="head"><span>Issues opened</span><b>27</b></div><svg class="chart" viewBox="0 0 210 72" role="img" preserveAspectRatio="xMidYMid meet"><line class="axis" x1="0" x2="210" y1="56.5" y2="56.5"/><path class="m-accent" d="M2.8,56.0 V56.0 Q2.8,54.4 4.4,54.4 H10.6 Q12.2,54.4 12.2,56.0 V56.0 Z" data-tip="2026-W27: 1 issues opened"><title>2026-W27: 1 issues opened</title></path><rect class="hit" x="0.0" y="0" width="15.0" height="72" data-tip="2026-W27: 1 issues opened"/><text class="tick" x="7.5" y="69" text-anchor="middle">W27</text><path class="m-accent" d="M17.9,56.0 V55.3 Q17.9,51.3 21.9,51.3 H23.2 Q27.2,51.3 27.2,55.3 V56.0 Z" data-tip="2026-W28: 3 issues opened"><title>2026-W28: 3 issues opened</title></path><rect class="hit" x="15.0" y="0" width="15.0" height="72" data-tip="2026-W28: 3 issues opened"/><path class="m-accent" d="M32.9,56.0 V56.0 Q32.9,54.4 34.4,54.4 H40.6 Q42.2,54.4 42.2,56.0 V56.0 Z" data-tip="2026-W29: 1 issues opened"><title>2026-W29: 1 issues opened</title></path><rect class="hit" x="30.0" y="0" width="15.0" height="72" data-tip="2026-W29: 1 issues opened"/><path class="m-accent" d="M47.9,56.0 V39.8 Q47.9,35.8 51.9,35.8 H53.2 Q57.2,35.8 57.2,39.8 V56.0 Z" data-tip="2026-W30: 13 issues opened"><title>2026-W30: 13 issues opened</title></path><rect class="hit" x="45.0" y="0" width="15.0" height="72" data-tip="2026-W30: 13 issues opened"/><path class="m-accent" d="M62.9,56.0 V44.4 Q62.9,40.4 66.8,40.4 H68.2 Q72.2,40.4 72.2,44.4 V56.0 Z" data-tip="2026-W31: 10 issues opened"><title>2026-W31: 10 issues opened</title></path><rect class="hit" x="60.0" y="0" width="15.0" height="72" data-tip="2026-W31: 10 issues opened"/><rect class="hit" x="75.0" y="0" width="15.0" height="72" data-tip="2026-W32: 0 issues opened"/><path class="m-accent" d="M92.8,56.0 V56.0 Q92.8,54.4 94.4,54.4 H100.6 Q102.1,54.4 102.1,56.0 V56.0 Z" data-tip="2026-W33: 1 issues opened"><title>2026-W33: 1 issues opened</title></path><rect class="hit" x="90.0" y="0" width="15.0" height="72" data-tip="2026-W33: 1 issues opened"/><rect class="hit" x="105.0" y="0" width="15.0" height="72" data-tip="2026-W34: 0 issues opened"/><text class="tick" x="112.5" y="69" text-anchor="middle">W34</text><rect class="hit" x="120.0" y="0" width="15.0" height="72" data-tip="2026-W35: 0 issues opened"/><rect class="hit" x="135.0" y="0" width="15.0" height="72" data-tip="2026-W36: 0 issues opened"/><path class="m-accent" d="M152.8,56.0 V56.0 Q152.8,52.9 156.0,52.9 H159.0 Q162.2,52.9 162.2,56.0 V56.0 Z" data-tip="2026-W37: 2 issues opened"><title>2026-W37: 2 issues opened</title></path><rect class="hit" x="150.0" y="0" width="15.0" height="72" data-tip="2026-W37: 2 issues opened"/><rect class="hit" x="165.0" y="0" width="15.0" height="72" data-tip="2026-W38: 0 issues opened"/><path class="m-accent" d="M182.8,56.0 V56.0 Q182.8,52.9 186.0,52.9 H189.0 Q192.2,52.9 192.2,56.0 V56.0 Z" data-tip="2026-W39: 2 issues opened"><title>2026-W39: 2 issues opened</title></path><rect class="hit" x="180.0" y="0" width="15.0" height="72" data-tip="2026-W39: 2 issues opened"/><path class="m-accent" d="M197.8,56.0 V18.0 Q197.8,14.0 201.8,14.0 H203.2 Q207.2,14.0 207.2,18.0 V56.0 Z" data-tip="2026-W40: 27 issues opened"><title>2026-W40: 27 issues opened</title></path><rect class="hit" x="195.0" y="0" width="15.0" height="72" data-tip="2026-W40: 27 issues opened"/><text class="val" x="202.5" y="10.0" text-anchor="middle">27</text></svg></div>
+    <div class="small"><div class="head"><span>Issues closed</span><b>2</b></div><svg class="chart" viewBox="0 0 210 72" role="img" preserveAspectRatio="xMidYMid meet"><line class="axis" x1="0" x2="210" y1="56.5" y2="56.5"/><path class="m-accent" d="M2.8,56.0 V56.0 Q2.8,54.9 4.0,54.9 H11.0 Q12.2,54.9 12.2,56.0 V56.0 Z" data-tip="2026-W27: 1 issues closed"><title>2026-W27: 1 issues closed</title></path><rect class="hit" x="0.0" y="0" width="15.0" height="72" data-tip="2026-W27: 1 issues closed"/><text class="tick" x="7.5" y="69" text-anchor="middle">W27</text><path class="m-accent" d="M17.9,56.0 V56.0 Q17.9,52.7 21.2,52.7 H23.8 Q27.2,52.7 27.2,56.0 V56.0 Z" data-tip="2026-W28: 3 issues closed"><title>2026-W28: 3 issues closed</title></path><rect class="hit" x="15.0" y="0" width="15.0" height="72" data-tip="2026-W28: 3 issues closed"/><path class="m-accent" d="M32.9,56.0 V18.0 Q32.9,14.0 36.9,14.0 H38.2 Q42.2,14.0 42.2,18.0 V56.0 Z" data-tip="2026-W29: 38 issues closed"><title>2026-W29: 38 issues closed</title></path><rect class="hit" x="30.0" y="0" width="15.0" height="72" data-tip="2026-W29: 38 issues closed"/><text class="val" x="37.5" y="10.0" text-anchor="middle">38</text><path class="m-accent" d="M47.9,56.0 V42.3 Q47.9,38.3 51.9,38.3 H53.2 Q57.2,38.3 57.2,42.3 V56.0 Z" data-tip="2026-W30: 16 issues closed"><title>2026-W30: 16 issues closed</title></path><rect class="hit" x="45.0" y="0" width="15.0" height="72" data-tip="2026-W30: 16 issues closed"/><path class="m-accent" d="M62.9,56.0 V56.0 Q62.9,52.7 66.2,52.7 H68.8 Q72.2,52.7 72.2,56.0 V56.0 Z" data-tip="2026-W31: 3 issues closed"><title>2026-W31: 3 issues closed</title></path><rect class="hit" x="60.0" y="0" width="15.0" height="72" data-tip="2026-W31: 3 issues closed"/><path class="m-accent" d="M77.8,56.0 V55.6 Q77.8,51.6 81.8,51.6 H83.1 Q87.1,51.6 87.1,55.6 V56.0 Z" data-tip="2026-W32: 4 issues closed"><title>2026-W32: 4 issues closed</title></path><rect class="hit" x="75.0" y="0" width="15.0" height="72" data-tip="2026-W32: 4 issues closed"/><rect class="hit" x="90.0" y="0" width="15.0" height="72" data-tip="2026-W33: 0 issues closed"/><rect class="hit" x="105.0" y="0" width="15.0" height="72" data-tip="2026-W34: 0 issues closed"/><text class="tick" x="112.5" y="69" text-anchor="middle">W34</text><rect class="hit" x="120.0" y="0" width="15.0" height="72" data-tip="2026-W35: 0 issues closed"/><rect class="hit" x="135.0" y="0" width="15.0" height="72" data-tip="2026-W36: 0 issues closed"/><rect class="hit" x="150.0" y="0" width="15.0" height="72" data-tip="2026-W37: 0 issues closed"/><rect class="hit" x="165.0" y="0" width="15.0" height="72" data-tip="2026-W38: 0 issues closed"/><rect class="hit" x="180.0" y="0" width="15.0" height="72" data-tip="2026-W39: 0 issues closed"/><path class="m-accent" d="M197.8,56.0 V56.0 Q197.8,53.8 200.1,53.8 H204.9 Q207.2,53.8 207.2,56.0 V56.0 Z" data-tip="2026-W40: 2 issues closed"><title>2026-W40: 2 issues closed</title></path><rect class="hit" x="195.0" y="0" width="15.0" height="72" data-tip="2026-W40: 2 issues closed"/></svg></div>
+    <div class="small"><div class="head"><span>Reviews</span><b>30</b></div><svg class="chart" viewBox="0 0 210 72" role="img" preserveAspectRatio="xMidYMid meet"><line class="axis" x1="0" x2="210" y1="56.5" y2="56.5"/><path class="m-accent" d="M2.8,56.0 V52.9 Q2.8,48.9 6.8,48.9 H8.2 Q12.2,48.9 12.2,52.9 V56.0 Z" data-tip="2026-W27: 10 reviews"><title>2026-W27: 10 reviews</title></path><rect class="hit" x="0.0" y="0" width="15.0" height="72" data-tip="2026-W27: 10 reviews"/><text class="tick" x="7.5" y="69" text-anchor="middle">W27</text><path class="m-accent" d="M17.9,56.0 V56.0 Q17.9,55.3 18.6,55.3 H26.4 Q27.2,55.3 27.2,56.0 V56.0 Z" data-tip="2026-W28: 1 reviews"><title>2026-W28: 1 reviews</title></path><rect class="hit" x="15.0" y="0" width="15.0" height="72" data-tip="2026-W28: 1 reviews"/><path class="m-accent" d="M32.9,56.0 V47.9 Q32.9,43.9 36.9,43.9 H38.2 Q42.2,43.9 42.2,47.9 V56.0 Z" data-tip="2026-W29: 17 reviews"><title>2026-W29: 17 reviews</title></path><rect class="hit" x="30.0" y="0" width="15.0" height="72" data-tip="2026-W29: 17 reviews"/><path class="m-accent" d="M47.9,56.0 V18.0 Q47.9,14.0 51.9,14.0 H53.2 Q57.2,14.0 57.2,18.0 V56.0 Z" data-tip="2026-W30: 59 reviews"><title>2026-W30: 59 reviews</title></path><rect class="hit" x="45.0" y="0" width="15.0" height="72" data-tip="2026-W30: 59 reviews"/><text class="val" x="52.5" y="10.0" text-anchor="middle">59</text><path class="m-accent" d="M62.9,56.0 V23.0 Q62.9,19.0 66.8,19.0 H68.2 Q72.2,19.0 72.2,23.0 V56.0 Z" data-tip="2026-W31: 52 reviews"><title>2026-W31: 52 reviews</title></path><rect class="hit" x="60.0" y="0" width="15.0" height="72" data-tip="2026-W31: 52 reviews"/><path class="m-accent" d="M77.8,56.0 V56.0 Q77.8,53.2 80.7,53.2 H84.3 Q87.1,53.2 87.1,56.0 V56.0 Z" data-tip="2026-W32: 4 reviews"><title>2026-W32: 4 reviews</title></path><rect class="hit" x="75.0" y="0" width="15.0" height="72" data-tip="2026-W32: 4 reviews"/><rect class="hit" x="90.0" y="0" width="15.0" height="72" data-tip="2026-W33: 0 reviews"/><path class="m-accent" d="M107.8,56.0 V56.0 Q107.8,55.3 108.6,55.3 H116.4 Q117.1,55.3 117.1,56.0 V56.0 Z" data-tip="2026-W34: 1 reviews"><title>2026-W34: 1 reviews</title></path><rect class="hit" x="105.0" y="0" width="15.0" height="72" data-tip="2026-W34: 1 reviews"/><text class="tick" x="112.5" y="69" text-anchor="middle">W34</text><path class="m-accent" d="M122.8,56.0 V50.7 Q122.8,46.7 126.8,46.7 H128.2 Q132.2,46.7 132.2,50.7 V56.0 Z" data-tip="2026-W35: 13 reviews"><title>2026-W35: 13 reviews</title></path><rect class="hit" x="120.0" y="0" width="15.0" height="72" data-tip="2026-W35: 13 reviews"/><path class="m-accent" d="M137.8,56.0 V56.0 Q137.8,53.2 140.7,53.2 H144.3 Q147.2,53.2 147.2,56.0 V56.0 Z" data-tip="2026-W36: 4 reviews"><title>2026-W36: 4 reviews</title></path><rect class="hit" x="135.0" y="0" width="15.0" height="72" data-tip="2026-W36: 4 reviews"/><path class="m-accent" d="M152.8,56.0 V56.0 Q152.8,52.4 156.4,52.4 H158.6 Q162.2,52.4 162.2,56.0 V56.0 Z" data-tip="2026-W37: 5 reviews"><title>2026-W37: 5 reviews</title></path><rect class="hit" x="150.0" y="0" width="15.0" height="72" data-tip="2026-W37: 5 reviews"/><path class="m-accent" d="M167.8,56.0 V55.7 Q167.8,51.7 171.8,51.7 H173.2 Q177.2,51.7 177.2,55.7 V56.0 Z" data-tip="2026-W38: 6 reviews"><title>2026-W38: 6 reviews</title></path><rect class="hit" x="165.0" y="0" width="15.0" height="72" data-tip="2026-W38: 6 reviews"/><path class="m-accent" d="M182.8,56.0 V50.7 Q182.8,46.7 186.8,46.7 H188.2 Q192.2,46.7 192.2,50.7 V56.0 Z" data-tip="2026-W39: 13 reviews"><title>2026-W39: 13 reviews</title></path><rect class="hit" x="180.0" y="0" width="15.0" height="72" data-tip="2026-W39: 13 reviews"/><path class="m-accent" d="M197.8,56.0 V38.6 Q197.8,34.6 201.8,34.6 H203.2 Q207.2,34.6 207.2,38.6 V56.0 Z" data-tip="2026-W40: 30 reviews"><title>2026-W40: 30 reviews</title></path><rect class="hit" x="195.0" y="0" width="15.0" height="72" data-tip="2026-W40: 30 reviews"/></svg></div>
+    <div class="small"><div class="head"><span>CI builds</span><b>496</b></div><svg class="chart" viewBox="0 0 210 72" role="img" preserveAspectRatio="xMidYMid meet"><line class="axis" x1="0" x2="210" y1="56.5" y2="56.5"/><path class="m-accent" d="M2.8,56.0 V54.4 Q2.8,50.4 6.8,50.4 H8.2 Q12.2,50.4 12.2,54.4 V56.0 Z" data-tip="2026-W27: 66 ci builds"><title>2026-W27: 66 ci builds</title></path><rect class="hit" x="0.0" y="0" width="15.0" height="72" data-tip="2026-W27: 66 ci builds"/><text class="tick" x="7.5" y="69" text-anchor="middle">W27</text><path class="m-accent" d="M17.9,56.0 V54.2 Q17.9,50.2 21.9,50.2 H23.2 Q27.2,50.2 27.2,54.2 V56.0 Z" data-tip="2026-W28: 68 ci builds"><title>2026-W28: 68 ci builds</title></path><rect class="hit" x="15.0" y="0" width="15.0" height="72" data-tip="2026-W28: 68 ci builds"/><path class="m-accent" d="M32.9,56.0 V54.2 Q32.9,50.2 36.9,50.2 H38.2 Q42.2,50.2 42.2,54.2 V56.0 Z" data-tip="2026-W29: 69 ci builds"><title>2026-W29: 69 ci builds</title></path><rect class="hit" x="30.0" y="0" width="15.0" height="72" data-tip="2026-W29: 69 ci builds"/><path class="m-accent" d="M47.9,56.0 V47.2 Q47.9,43.2 51.9,43.2 H53.2 Q57.2,43.2 57.2,47.2 V56.0 Z" data-tip="2026-W30: 151 ci builds"><title>2026-W30: 151 ci builds</title></path><rect class="hit" x="45.0" y="0" width="15.0" height="72" data-tip="2026-W30: 151 ci builds"/><path class="m-accent" d="M62.9,56.0 V52.2 Q62.9,48.2 66.8,48.2 H68.2 Q72.2,48.2 72.2,52.2 V56.0 Z" data-tip="2026-W31: 92 ci builds"><title>2026-W31: 92 ci builds</title></path><rect class="hit" x="60.0" y="0" width="15.0" height="72" data-tip="2026-W31: 92 ci builds"/><path class="m-accent" d="M77.8,56.0 V54.6 Q77.8,50.6 81.8,50.6 H83.1 Q87.1,50.6 87.1,54.6 V56.0 Z" data-tip="2026-W32: 64 ci builds"><title>2026-W32: 64 ci builds</title></path><rect class="hit" x="75.0" y="0" width="15.0" height="72" data-tip="2026-W32: 64 ci builds"/><path class="m-accent" d="M92.8,56.0 V56.0 Q92.8,55.7 93.1,55.7 H101.9 Q102.1,55.7 102.1,56.0 V56.0 Z" data-tip="2026-W33: 3 ci builds"><title>2026-W33: 3 ci builds</title></path><rect class="hit" x="90.0" y="0" width="15.0" height="72" data-tip="2026-W33: 3 ci builds"/><path class="m-accent" d="M107.8,56.0 V56.0 Q107.8,53.3 110.6,53.3 H114.4 Q117.1,53.3 117.1,56.0 V56.0 Z" data-tip="2026-W34: 32 ci builds"><title>2026-W34: 32 ci builds</title></path><rect class="hit" x="105.0" y="0" width="15.0" height="72" data-tip="2026-W34: 32 ci builds"/><text class="tick" x="112.5" y="69" text-anchor="middle">W34</text><path class="m-accent" d="M122.8,56.0 V56.0 Q122.8,55.9 122.9,55.9 H132.1 Q132.2,55.9 132.2,56.0 V56.0 Z" data-tip="2026-W35: 1 ci builds"><title>2026-W35: 1 ci builds</title></path><rect class="hit" x="120.0" y="0" width="15.0" height="72" data-tip="2026-W35: 1 ci builds"/><path class="m-accent" d="M137.8,56.0 V46.0 Q137.8,42.0 141.8,42.0 H143.2 Q147.2,42.0 147.2,46.0 V56.0 Z" data-tip="2026-W36: 165 ci builds"><title>2026-W36: 165 ci builds</title></path><rect class="hit" x="135.0" y="0" width="15.0" height="72" data-tip="2026-W36: 165 ci builds"/><path class="m-accent" d="M152.8,56.0 V53.6 Q152.8,49.6 156.8,49.6 H158.2 Q162.2,49.6 162.2,53.6 V56.0 Z" data-tip="2026-W37: 76 ci builds"><title>2026-W37: 76 ci builds</title></path><rect class="hit" x="150.0" y="0" width="15.0" height="72" data-tip="2026-W37: 76 ci builds"/><path class="m-accent" d="M167.8,56.0 V43.6 Q167.8,39.6 171.8,39.6 H173.2 Q177.2,39.6 177.2,43.6 V56.0 Z" data-tip="2026-W38: 194 ci builds"><title>2026-W38: 194 ci builds</title></path><rect class="hit" x="165.0" y="0" width="15.0" height="72" data-tip="2026-W38: 194 ci builds"/><path class="m-accent" d="M182.8,56.0 V33.5 Q182.8,29.5 186.8,29.5 H188.2 Q192.2,29.5 192.2,33.5 V56.0 Z" data-tip="2026-W39: 313 ci builds"><title>2026-W39: 313 ci builds</title></path><rect class="hit" x="180.0" y="0" width="15.0" height="72" data-tip="2026-W39: 313 ci builds"/><path class="m-accent" d="M197.8,56.0 V18.0 Q197.8,14.0 201.8,14.0 H203.2 Q207.2,14.0 207.2,18.0 V56.0 Z" data-tip="2026-W40: 496 ci builds"><title>2026-W40: 496 ci builds</title></path><rect class="hit" x="195.0" y="0" width="15.0" height="72" data-tip="2026-W40: 496 ci builds"/><text class="val" x="202.5" y="10.0" text-anchor="middle">496</text></svg></div>
+  </div>
+</section>
+
+<section id="weeks">
+  <header><h2>Weekly reports</h2></header>
+  <div class="tablebox"><table>
+    <thead><tr><th>Week</th><th>Dates</th><th class="num">Commits</th><th class="num">PRs merged</th><th class="num">PRs opened</th><th class="num">Issues opened</th><th class="num">Issues closed</th><th class="num">Reviews</th><th class="num">CI builds</th><th class="num">Test executions</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><a class="mono" href="weekly/2026-W40.html">2026-W40</a></td>
+        <td>28 Sep – 4 Oct 2026</td>
+        <td class="num">9</td>
+        <td class="num">7</td>
+        <td class="num">10</td>
+        <td class="num">27</td>
+        <td class="num">2</td>
+        <td class="num">30</td>
+        <td class="num">496</td>
+        <td class="num">182,387</td>
+      </tr>
+      <tr>
+        <td><a class="mono" href="weekly/2026-W39.html">2026-W39</a></td>
+        <td>21 Sep – 27 Sep 2026</td>
+        <td class="num">2</td>
+        <td class="num">2</td>
+        <td class="num">5</td>
+        <td class="num">2</td>
+        <td class="num zero">0</td>
+        <td class="num">13</td>
+        <td class="num">313</td>
+        <td class="num">114,063</td>
+      </tr>
+      <tr>
+        <td><a class="mono" href="weekly/2026-W38.html">2026-W38</a></td>
+        <td>14 Sep – 20 Sep 2026</td>
+        <td class="num">2</td>
+        <td class="num">1</td>
+        <td class="num">3</td>
+        <td class="num zero">0</td>
+        <td class="num zero">0</td>
+        <td class="num">6</td>
+        <td class="num">194</td>
+        <td class="num">61,016</td>
+      </tr>
+      <tr>
+        <td><a class="mono" href="weekly/2026-W37.html">2026-W37</a></td>
+        <td>7 Sep – 13 Sep 2026</td>
+        <td class="num zero">0</td>
+        <td class="num zero">0</td>
+        <td class="num zero">0</td>
+        <td class="num">2</td>
+        <td class="num zero">0</td>
+        <td class="num">5</td>
+        <td class="num">76</td>
+        <td class="num">24,827</td>
+      </tr>
+      <tr>
+        <td><a class="mono" href="weekly/2026-W36.html">2026-W36</a></td>
+        <td>31 Aug – 6 Sep 2026</td>
+        <td class="num zero">0</td>
+        <td class="num zero">0</td>
+        <td class="num">2</td>
+        <td class="num zero">0</td>
+        <td class="num zero">0</td>
+        <td class="num">4</td>
+        <td class="num">165</td>
+        <td class="num">58,323</td>
+      </tr>
+      <tr>
+        <td><a class="mono" href="weekly/2026-W35.html">2026-W35</a></td>
+        <td>24 Aug – 30 Aug 2026</td>
+        <td class="num zero">0</td>
+        <td class="num zero">0</td>
+        <td class="num zero">0</td>
+        <td class="num zero">0</td>
+        <td class="num zero">0</td>
+        <td class="num">13</td>
+        <td class="num">1</td>
+        <td class="num zero">0</td>
+      </tr>
+      <tr>
+        <td><a class="mono" href="weekly/2026-W34.html">2026-W34</a></td>
+        <td>17 Aug – 23 Aug 2026</td>
+        <td class="num zero">0</td>
+        <td class="num zero">0</td>
+        <td class="num zero">0</td>
+        <td class="num zero">0</td>
+        <td class="num zero">0</td>
+        <td class="num">1</td>
+        <td class="num">32</td>
+        <td class="num">7,277</td>
+      </tr>
+      <tr>
+        <td><a class="mono" href="weekly/2026-W33.html">2026-W33</a></td>
+        <td>10 Aug – 16 Aug 2026</td>
+        <td class="num">1</td>
+        <td class="num zero">0</td>
+        <td class="num">1</td>
+        <td class="num">1</td>
+        <td class="num zero">0</td>
+        <td class="num zero">0</td>
+        <td class="num">3</td>
+        <td class="num zero">0</td>
+      </tr>
+      <tr>
+        <td><a class="mono" href="weekly/2026-W32.html">2026-W32</a></td>
+        <td>3 Aug – 9 Aug 2026</td>
+        <td class="num">9</td>
+        <td class="num">6</td>
+        <td class="num">11</td>
+        <td class="num zero">0</td>
+        <td class="num">4</td>
+        <td class="num">4</td>
+        <td class="num">64</td>
+        <td class="num zero">0</td>
+      </tr>
+      <tr>
+        <td><a class="mono" href="weekly/2026-W31.html">2026-W31</a></td>
+        <td>27 Jul – 2 Aug 2026</td>
+        <td class="num">5</td>
+        <td class="num">4</td>
+        <td class="num">7</td>
+        <td class="num">10</td>
+        <td class="num">3</td>
+        <td class="num">52</td>
+        <td class="num">92</td>
+        <td class="num zero">0</td>
+      </tr>
+      <tr>
+        <td><a class="mono" href="weekly/2026-W30.html">2026-W30</a></td>
+        <td>20 Jul – 26 Jul 2026</td>
+        <td class="num">15</td>
+        <td class="num">12</td>
+        <td class="num">16</td>
+        <td class="num">13</td>
+        <td class="num">16</td>
+        <td class="num">59</td>
+        <td class="num">151</td>
+        <td class="num zero">0</td>
+      </tr>
+      <tr>
+        <td><a class="mono" href="weekly/2026-W29.html">2026-W29</a></td>
+        <td>13 Jul – 19 Jul 2026</td>
+        <td class="num">3</td>
+        <td class="num">3</td>
+        <td class="num">4</td>
+        <td class="num">1</td>
+        <td class="num">38</td>
+        <td class="num">17</td>
+        <td class="num">69</td>
+        <td class="num zero">0</td>
+      </tr>
+      <tr>
+        <td><a class="mono" href="weekly/2026-W28.html">2026-W28</a></td>
+        <td>6 Jul – 12 Jul 2026</td>
+        <td class="num">3</td>
+        <td class="num">3</td>
+        <td class="num">3</td>
+        <td class="num">3</td>
+        <td class="num">3</td>
+        <td class="num">1</td>
+        <td class="num">68</td>
+        <td class="num zero">0</td>
+      </tr>
+      <tr>
+        <td><a class="mono" href="weekly/2026-W27.html">2026-W27</a></td>
+        <td>29 Jun – 5 Jul 2026</td>
+        <td class="num">8</td>
+        <td class="num">2</td>
+        <td class="num">8</td>
+        <td class="num">1</td>
+        <td class="num">1</td>
+        <td class="num">10</td>
+        <td class="num">66</td>
+        <td class="num zero">0</td>
+      </tr>
+    </tbody>
+  </table></div>
+</section>
+<footer>
+  Generated 5 Oct 2026, 10:10 UTC from the GitHub API and the LPP TeamCity server.
+  Source: <a href="https://github.com/PHAREHUB/pharehub.github.io/tree/main/tools/report">tools/report</a>.
+</footer>
+</div>
+<div id="tip" hidden></div>
+<script>
+(() => {
+  const tip = document.getElementById("tip");
+  const show = (e) => {
+    const el = e.target.closest("[data-tip]");
+    if (!el) { tip.hidden = true; return; }
+    tip.textContent = el.dataset.tip;
+    tip.hidden = false;
+    const r = el.getBoundingClientRect(), half = tip.offsetWidth / 2 + 8;
+    tip.style.left = Math.min(Math.max(r.left + r.width / 2, half), innerWidth - half) + "px";
+    tip.style.top = Math.max(r.top, 30) + "px";
+  };
+  document.addEventListener("pointerover", show);
+  document.addEventListener("focusin", show);
+  document.addEventListener("pointerleave", () => { tip.hidden = true; });
+  document.addEventListener("scroll", () => { tip.hidden = true; }, { passive: true });
+})();
+</script>
+</body>
+</html>

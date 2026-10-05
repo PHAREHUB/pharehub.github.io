@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PHARE week 28, 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column, summary first (tiles, daily small multiples), then detail sections. */
+:root {
+  --bg: #f6f7f9; --surface: #fdfdfe; --ink: #0d1117; --ink-2: #4a5160; --muted: #848b98;
+  --line: #e1e4ea; --axis: #c3c8d1; --accent: #2a78d6; --accent-wash: rgba(42,120,214,.10);
+  --ok: #0ca30c; --bad: #d03b3b; --warn: #c98500; --chip: #eceff4;
+  --c1: #2a78d6; --c2: #eb6834; --c3: #1baf7a; --c4: #eda100; --c5: #e87ba4; --c6: #008300; --c7: #4a3aa7; --c-other: #a3a9b4;
+  --sans: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0e1013; --surface: #16191e; --ink: #f3f4f6; --ink-2: #c0c5ce; --muted: #8a909b;
+  --line: #262a31; --axis: #383d46; --accent: #3987e5; --accent-wash: rgba(57,135,229,.14);
+  --ok: #0ca30c; --bad: #e05555; --warn: #e0a020; --chip: #232830; color-scheme: dark;
+  --c1: #3987e5; --c2: #d95926; --c3: #199e70; --c4: #c98500; --c5: #d55181; --c6: #008300; --c7: #9085e9; --c-other: #5d636d;
+} }
+:root[data-theme="dark"] {
+  --bg: #0e1013; --surface: #16191e; --ink: #f3f4f6; --ink-2: #c0c5ce; --muted: #8a909b;
+  --line: #262a31; --axis: #383d46; --accent: #3987e5; --accent-wash: rgba(57,135,229,.14);
+  --ok: #0ca30c; --bad: #e05555; --warn: #e0a020; --chip: #232830; color-scheme: dark;
+  --c1: #3987e5; --c2: #d95926; --c3: #199e70; --c4: #c98500; --c5: #d55181; --c6: #008300; --c7: #9085e9; --c-other: #5d636d;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--sans); }
+.wrap { max-width: 1080px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 64px; display: grid; gap: 36px; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; line-height: 1.2; }
+h1 { font-size: 30px; font-weight: 700; letter-spacing: -.01em; }
+h2 { font-size: 20px; font-weight: 600; }
+h3 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); }
+.mono, code { font-family: var(--mono); font-size: .9em; }
+.muted { color: var(--muted); }
+.sub { color: var(--ink-2); }
+.num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+
+header.top { display: grid; gap: 10px; }
+.crumbs { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted); }
+.crumbs .sep { color: var(--axis); }
+.eyebrow { font: 500 12px/1 var(--mono); color: var(--muted); letter-spacing: .04em; }
+
+section { display: grid; gap: 14px; min-width: 0; }
+section > header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px;
+  border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 24px; }
+.grid2 > * { min-width: 0; display: grid; gap: 10px; align-content: start; }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px;
+  background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.tile { background: var(--surface); padding: 14px 16px; display: grid; gap: 2px; }
+.tile .label { font-size: 13px; color: var(--ink-2); }
+.tile .value { font-size: 28px; font-weight: 600; letter-spacing: -.01em; }
+.tile .note { font-size: 12px; color: var(--muted); }
+
+.smalls { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr)); gap: 12px; }
+.small { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px 6px; }
+.small .head { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-2); }
+.small .head b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.chart { width: 100%; height: auto; display: block; overflow: visible; }
+.chart .axis { stroke: var(--axis); stroke-width: 1; }
+.chart .tick { fill: var(--muted); font: 10px var(--sans); }
+.chart .val { fill: var(--ink-2); font: 600 10px var(--sans); }
+.chart .hit { fill: transparent; }
+.m-accent { fill: var(--accent); }
+.m-ok { fill: var(--ok); }
+.m-bad { fill: var(--bad); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--ink-2); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.ciwrap { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 8px; }
+
+ul.items { list-style: none; margin: 0; padding: 0; display: grid; }
+ul.items li { display: grid; grid-template-columns: 4.2em 1fr; gap: 2px 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+ul.items li:first-child { border-top: 0; }
+ul.items .n { font: 500 13px/1.6 var(--mono); color: var(--muted); }
+ul.items .t { min-width: 0; overflow-wrap: anywhere; }
+ul.items .meta { grid-column: 2; font-size: 13px; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
+.chip { display: inline-block; font-size: 11.5px; line-height: 1.6; padding: 0 7px; border-radius: 999px; background: var(--chip); color: var(--ink-2); }
+.pill { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 0 8px; border-radius: 999px; line-height: 1.7; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pill.ok { color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, transparent); }
+.pill.bad { color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, transparent); }
+.pill.neutral { color: var(--ink-2); background: var(--chip); }
+.pill.draft { color: var(--muted); background: var(--chip); }
+.plus { color: var(--ok); } .minus { color: var(--bad); }
+blockquote { margin: 2px 0 0; padding-left: 10px; border-left: 2px solid var(--line); color: var(--ink-2); font-size: 13px; grid-column: 2; }
+
+.tablebox { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { padding: 7px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+th { font-weight: 600; font-size: 12px; color: var(--ink-2); background: var(--bg); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.zero { color: var(--axis); }
+tbody tr.group td { background: var(--bg); font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+details > summary { cursor: pointer; color: var(--ink-2); font-size: 13.5px; }
+details[open] > summary { margin-bottom: 8px; }
+.empty { color: var(--muted); font-style: italic; font-size: 14px; }
+.callout { font-size: 13.5px; color: var(--ink-2); background: var(--accent-wash); border-radius: 8px; padding: 10px 12px; }
+
+
+/* ---- visual components ---- */
+.c1 { --k: var(--c1); } .c2 { --k: var(--c2); } .c3 { --k: var(--c3); } .c4 { --k: var(--c4); }
+.c5 { --k: var(--c5); } .c6 { --k: var(--c6); } .c7 { --k: var(--c7); } .c-other { --k: var(--c-other); }
+.ok { --k: var(--ok); } .bad { --k: var(--bad); } .skip { --k: var(--axis); } .total { --k: var(--ink-2); }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; background: var(--k); margin-right: 6px; vertical-align: -1px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 12px; min-width: 0; }
+.panel h3 { margin: 0; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; align-items: start; }
+.grid3 > * { min-width: 0; }
+
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px; background: var(--line);
+  border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.kpi { background: var(--surface); padding: 12px 14px 8px; display: grid; gap: 2px; align-content: start; }
+.kpi .label { font-size: 13px; color: var(--ink-2); }
+.kpi .row { display: flex; align-items: baseline; gap: 8px; }
+.kpi .value { font-size: 28px; font-weight: 600; letter-spacing: -.01em; }
+.kpi .delta { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.spark { width: 100%; height: 30px; display: block; }
+.spark-line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.spark-area { fill: var(--accent-wash); }
+.spark-dot { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
+
+.tl { display: grid; grid-template-columns: minmax(6.5em, 10em) 1fr 2.4em; align-items: center; }
+.tl .lab { font-size: 13px; color: var(--ink-2); padding-right: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tl .cnt { font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.track { position: relative; height: 32px; border-top: 1px solid var(--line);
+  background-image: linear-gradient(to right, var(--line) 1px, transparent 1px); background-size: calc(100% / var(--n, 7)) 100%; }
+.tl > .track:last-of-type { border-bottom: 1px solid var(--line); }
+.dot { position: absolute; top: 50%; width: calc(var(--r) * 2px); height: calc(var(--r) * 2px); border-radius: 50%;
+  transform: translate(-50%, -50%); background: var(--k); box-shadow: 0 0 0 2px var(--surface); }
+a.dot:hover, a.dot:focus-visible { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--k); outline: none; z-index: 2; }
+.axisrow { position: relative; height: 20px; font-size: 11.5px; color: var(--muted); }
+.axisrow span { position: absolute; transform: translateX(-50%); white-space: nowrap; top: 3px; }
+.axisrow b { font-weight: 400; } .axisrow .short { display: none; }
+
+.wf { display: grid; grid-template-columns: repeat(var(--cols), 1fr); gap: 8px; }
+.wf .col { position: relative; height: 150px; border-bottom: 1px solid var(--axis); }
+.wf .bar { position: absolute; left: 18%; right: 18%; border-radius: 4px 4px 0 0; background: var(--k); min-height: 2px; }
+.wf .bar.down { border-radius: 0 0 4px 4px; }
+.wf .v { position: absolute; left: 0; right: 0; text-align: center; font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.wf .lab { font-size: 11.5px; color: var(--muted); text-align: center; line-height: 1.25; padding-top: 4px; }
+.wf-note { font-size: 11.5px; color: var(--muted); }
+
+.hb { display: grid; grid-template-columns: minmax(5em, max-content) 1fr 2.2em; gap: 6px 10px; align-items: center; font-size: 13px; }
+.hb .name { color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 14em; }
+.hb .bar { height: 12px; border-radius: 0 4px 4px 0; background: var(--k, var(--accent)); min-width: 2px; }
+.hb .n { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+
+.split { display: flex; gap: 2px; height: 18px; border-radius: 4px; overflow: hidden; }
+.split > span { background: var(--k); min-width: 4px; }
+.legend .n { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+.prc { display: grid; grid-template-columns: 4.6em minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr); gap: 0 14px; align-items: center; font-size: 13px; }
+.prc > .h { font-size: 11.5px; color: var(--muted); padding-bottom: 4px; }
+.prc .ticks { position: relative; height: 16px; }
+.prc .ticks span { position: absolute; transform: translateX(-50%); font-size: 11px; color: var(--muted); white-space: nowrap; }
+.prc .ticks span:first-child { transform: none; }
+.prc .num a { font: 500 12.5px var(--mono); }
+.prc .ttl { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-block: 7px; }
+.prc .ttl .who { color: var(--muted); font-size: 12px; margin-left: 6px; }
+.prc .rule { grid-column: 1 / -1; border-top: 1px solid var(--line); }
+.lane { position: relative; height: 12px; background-image: linear-gradient(to right, var(--line) 1px, transparent 1px);
+  background-size: 25% 100%; }
+.lane .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 0 4px 4px 0; background: var(--k); }
+.lane .mark { position: absolute; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; background: var(--ink); border-radius: 1px; }
+.lane .segs { position: absolute; left: 0; top: 0; bottom: 0; display: flex; gap: 2px; }
+.lane .segs span { background: var(--k); min-width: 2px; }
+.lane .segs span:last-child { border-radius: 0 4px 4px 0; }
+.st { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--k); margin-right: 5px; }
+
+.heat { border-collapse: separate; border-spacing: 2px; width: 100%; font-size: 13px; }
+.heat th { background: none; border: 0; font-weight: 500; font-size: 11.5px; color: var(--muted); padding: 2px 4px; text-align: center; white-space: normal; line-height: 1.2; }
+.heat th.row { text-align: left; font-size: 13px; color: var(--ink); white-space: nowrap; }
+.heat td { border: 0; text-align: center; padding: 6px 4px; border-radius: 4px; font-variant-numeric: tabular-nums;
+  background: color-mix(in srgb, var(--accent) calc(var(--s) * 1%), var(--bg)); }
+.heat td.z { color: var(--axis); }
+
+.ci { display: grid; grid-template-columns: minmax(8em, 15em) 1fr auto; gap: 0 12px; align-items: center; font-size: 12.5px; }
+.ci .grp { grid-column: 1 / -1; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; padding: 12px 0 4px; }
+.ci .name { font-family: var(--mono); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-block: 5px; }
+.ci .strip { position: relative; height: 20px; border-left: 1px solid var(--line); border-right: 1px solid var(--line);
+  background-image: linear-gradient(to right, var(--line) 1px, transparent 1px); background-size: calc(100% / var(--n, 7)) 100%; }
+.ci .tick { position: absolute; top: 2px; bottom: 2px; width: 3px; margin-left: -1.5px; border-radius: 1.5px; background: var(--k); }
+.ci .tick.bad { top: 0; bottom: 0; width: 4px; z-index: 1; }
+.ci .counts { font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ink-2); text-align: right; }
+.ci .counts b { font-weight: 600; }
+.ci .counts .okc { color: var(--ok); } .ci .counts .badc { color: var(--bad); }
+
+.churn { display: grid; grid-template-columns: minmax(6em, max-content) 1fr 1fr; gap: 6px 0; align-items: center; font-size: 13px; }
+.churn .name { padding-right: 12px; white-space: nowrap; }
+.churn .l, .churn .r { display: flex; align-items: center; gap: 6px; height: 14px; font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.churn .l { justify-content: flex-end; border-right: 1px solid var(--axis); padding-right: 0; }
+.churn .l i { display: block; height: 12px; background: var(--bad); border-radius: 4px 0 0 4px; opacity: .85; }
+.churn .r i { display: block; height: 12px; background: var(--ok); border-radius: 0 4px 4px 0; opacity: .85; }
+.churn .l em, .churn .r em { font-style: normal; color: var(--muted); }
+
+@media (max-width: 720px) {
+  .axisrow .long { display: none; } .axisrow .short { display: inline; }
+  .prc { grid-template-columns: 4.2em minmax(0, 1fr) minmax(0, 1fr); }
+  .prc .ttl { grid-column: 2 / -1; padding-bottom: 2px; }
+  .prc .lane-age { grid-column: 2; margin-bottom: 9px; }
+  .prc .lane-size { grid-column: 3; margin-bottom: 9px; }
+  .prc .h.ttl-h { display: none; }
+  .prc .num { grid-row: span 2; align-self: start; padding-top: 7px; }
+  .ci { grid-template-columns: minmax(6em, 9em) 1fr; }
+  .ci .counts { grid-column: 2; text-align: left; padding-bottom: 6px; }
+}
+#tip { position: fixed; pointer-events: none; z-index: 10; background: var(--ink); color: var(--bg); font-size: 12.5px;
+  padding: 4px 8px; border-radius: 6px; max-width: min(90vw, 460px); white-space: normal; transform: translate(-50%, calc(-100% - 10px)); }
+footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
+@media (max-width: 560px) { h1 { font-size: 24px; } .tile .value { font-size: 23px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <nav class="crumbs" aria-label="Report navigation">
+    <a href="../index.html">All reports</a><span class="sep">/</span>
+<a href="2026-W27.html">← 2026-W27</a><a href="2026-W29.html">2026-W29 →</a>    <span class="sep">/</span><a href="https://github.com/PHAREHUB/PHARE">PHAREHUB/PHARE</a>
+  </nav>
+  <span class="eyebrow">WEEKLY REPORT · ISO 2026-W28</span>
+  <h1>PHARE, 6 Jul – 12 Jul 2026</h1>
+</header>
+
+<div class="kpis">
+  <div class="kpi">
+    <span class="label">Commits on master</span>
+    <div class="row"><span class="value">3</span>
+<span class="delta">▼ -5 vs last week</span></div>
+    <svg class="spark" viewBox="0 0 120 30" aria-hidden="true"><path class="spark-area" d="M4.0,4.0 L116.0,17.8 L116.0,26 L4.0,26 Z"/><path class="spark-line" d="M4.0,4.0 L116.0,17.8"/><circle class="spark-dot" cx="116.0" cy="17.8" r="3.5"/></svg>
+  </div>
+  <div class="kpi">
+    <span class="label">PRs merged</span>
+    <div class="row"><span class="value">3</span>
+<span class="delta">▲ +1 vs last week</span></div>
+    <svg class="spark" viewBox="0 0 120 30" aria-hidden="true"><path class="spark-area" d="M4.0,11.3 L116.0,4.0 L116.0,26 L4.0,26 Z"/><path class="spark-line" d="M4.0,11.3 L116.0,4.0"/><circle class="spark-dot" cx="116.0" cy="4.0" r="3.5"/></svg>
+  </div>
+  <div class="kpi">
+    <span class="label">Issues opened</span>
+    <div class="row"><span class="value">3</span>
+<span class="delta">▲ +2 vs last week</span></div>
+    <svg class="spark" viewBox="0 0 120 30" aria-hidden="true"><path class="spark-area" d="M4.0,18.7 L116.0,4.0 L116.0,26 L4.0,26 Z"/><path class="spark-line" d="M4.0,18.7 L116.0,4.0"/><circle class="spark-dot" cx="116.0" cy="4.0" r="3.5"/></svg>
+  </div>
+  <div class="kpi">
+    <span class="label">Issues closed</span>
+    <div class="row"><span class="value">3</span>
+<span class="delta">▲ +2 vs last week</span></div>
+    <svg class="spark" viewBox="0 0 120 30" aria-hidden="true"><path class="spark-area" d="M4.0,18.7 L116.0,4.0 L116.0,26 L4.0,26 Z"/><path class="spark-line" d="M4.0,18.7 L116.0,4.0"/><circle class="spark-dot" cx="116.0" cy="4.0" r="3.5"/></svg>
+  </div>
+  <div class="kpi">
+    <span class="label">Reviews</span>
+    <div class="row"><span class="value">1</span>
+<span class="delta">▼ -9 vs last week</span></div>
+    <svg class="spark" viewBox="0 0 120 30" aria-hidden="true"><path class="spark-area" d="M4.0,4.0 L116.0,23.8 L116.0,26 L4.0,26 Z"/><path class="spark-line" d="M4.0,4.0 L116.0,23.8"/><circle class="spark-dot" cx="116.0" cy="23.8" r="3.5"/></svg>
+  </div>
+  <div class="kpi">
+    <span class="label">CI builds</span>
+    <div class="row"><span class="value">68</span>
+<span class="delta">▲ +2 vs last week</span></div>
+    <svg class="spark" viewBox="0 0 120 30" aria-hidden="true"><path class="spark-area" d="M4.0,4.6 L116.0,4.0 L116.0,26 L4.0,26 Z"/><path class="spark-line" d="M4.0,4.6 L116.0,4.0"/><circle class="spark-dot" cx="116.0" cy="4.0" r="3.5"/></svg>
+  </div>
+</div>
+
+<section id="glance">
+  <header><h2>The week at a glance</h2><span class="muted">each dot is one event · hover for details, click to open</span></header>
+  <div class="panel">
+    <div class="tl" style="--n: 7">
+      <span></span>
+      <div class="axisrow"><span style="left: 7.14%"><b class="long">Mon 6</b><b class="short">M</b></span><span style="left: 21.43%"><b class="long">Tue 7</b><b class="short">T</b></span><span style="left: 35.71%"><b class="long">Wed 8</b><b class="short">W</b></span><span style="left: 50.0%"><b class="long">Thu 9</b><b class="short">T</b></span><span style="left: 64.29%"><b class="long">Fri 10</b><b class="short">F</b></span><span style="left: 78.57%"><b class="long">Sat 11</b><b class="short">S</b></span><span style="left: 92.86%"><b class="long">Sun 12</b><b class="short">S</b></span></div>
+      <span></span>
+      <span class="lab"><span class="sw c1"></span>Commits on master</span>
+      <div class="track">
+<a class="dot c1" href="https://github.com/PHAREHUB/PHARE/commit/8e4db5bf4086577dfebd1b627035896da16d2215" style="left: 36.44%; --r: 6.0" data-tip="8e4db5b use mpi phlop timer clocks (#1206) — @PhilipDeegan (+81 −23)" aria-label="8e4db5b use mpi phlop timer clocks (#1206) — @PhilipDeegan (+81 −23)"></a>
+<a class="dot c1" href="https://github.com/PHAREHUB/PHARE/commit/edc6fde4ba8f85284cf165dcc75791e8a3fe4873" style="left: 36.46%; --r: 6.4" data-tip="edc6fde less ghost box iteration (#1230) — @PhilipDeegan (+88 −154)" aria-label="edc6fde less ghost box iteration (#1230) — @PhilipDeegan (+88 −154)"></a>
+<a class="dot c1" href="https://github.com/PHAREHUB/PHARE/commit/58dd04a7868b3affcb50d3d0e46aed6bd1e4f623" style="left: 36.46%; --r: 5.8" data-tip="58dd04a const correctness (#1234) — @PhilipDeegan (+30 −29)" aria-label="58dd04a const correctness (#1234) — @PhilipDeegan (+30 −29)"></a>
+      </div>
+      <span class="cnt">3</span>
+      <span class="lab"><span class="sw c7"></span>PRs merged</span>
+      <div class="track">
+<a class="dot c7" href="https://github.com/PHAREHUB/PHARE/pull/1206" style="left: 36.44%; --r: 5.0" data-tip="#1206 merged: use mpi phlop timer clocks — @PhilipDeegan" aria-label="#1206 merged: use mpi phlop timer clocks — @PhilipDeegan"></a>
+<a class="dot c7" href="https://github.com/PHAREHUB/PHARE/pull/1234" style="left: 36.46%; --r: 5.0" data-tip="#1234 merged: const correctness — @PhilipDeegan" aria-label="#1234 merged: const correctness — @PhilipDeegan"></a>
+<a class="dot c7" href="https://github.com/PHAREHUB/PHARE/pull/1230" style="left: 36.46%; --r: 5.0" data-tip="#1230 merged: less ghost box iteration — @PhilipDeegan" aria-label="#1230 merged: less ghost box iteration — @PhilipDeegan"></a>
+      </div>
+      <span class="cnt">3</span>
+      <span class="lab"><span class="sw c3"></span>PRs opened</span>
+      <div class="track">
+<a class="dot c3" href="https://github.com/PHAREHUB/PHARE/pull/1240" style="left: 6.95%; --r: 5.0" data-tip="#1240 opened: Derived-quantity diagnostics: generic interface (V, P, divB, J, E) + catalogue-based writer dispatch — @igirault" aria-label="#1240 opened: Derived-quantity diagnostics: generic interface (V, P, divB, J, E) + catalogue-based writer dispatch — @igirault"></a>
+<a class="dot c3" href="https://github.com/PHAREHUB/PHARE/pull/1241" style="left: 12.86%; --r: 5.0" data-tip="#1241 opened: Inner boundary — @igirault" aria-label="#1241 opened: Inner boundary — @igirault"></a>
+<a class="dot c3" href="https://github.com/PHAREHUB/PHARE/pull/1245" style="left: 69.66%; --r: 5.0" data-tip="#1245 opened: experimental - single python module for all impls — @PhilipDeegan" aria-label="#1245 opened: experimental - single python module for all impls — @PhilipDeegan"></a>
+      </div>
+      <span class="cnt">3</span>
+      <span class="lab"><span class="sw c2"></span>Issues opened</span>
+      <div class="track">
+<a class="dot c2" href="https://github.com/PHAREHUB/PHARE/issues/1242" style="left: 20.16%; --r: 5.0" data-tip="#1242 Plotting dispersion test — @iljah" aria-label="#1242 Plotting dispersion test — @iljah"></a>
+<a class="dot c2" href="https://github.com/PHAREHUB/PHARE/issues/1243" style="left: 46.29%; --r: 5.0" data-tip="#1243 Access to h5 data? — @iljah" aria-label="#1243 Access to h5 data? — @iljah"></a>
+<a class="dot c2" href="https://github.com/PHAREHUB/PHARE/issues/1244" style="left: 50.72%; --r: 5.0" data-tip="#1244 Sawtooth timestepping in mhd_harris — @iljah" aria-label="#1244 Sawtooth timestepping in mhd_harris — @iljah"></a>
+      </div>
+      <span class="cnt">3</span>
+      <span class="lab"><span class="sw c6"></span>Issues closed</span>
+      <div class="track">
+<a class="dot c6" href="https://github.com/PHAREHUB/PHARE/issues/1237" style="left: 20.75%; --r: 5.0" data-tip="#1237 closed (completed): How to change number of particles / cell?" aria-label="#1237 closed (completed): How to change number of particles / cell?"></a>
+<a class="dot c6" href="https://github.com/PHAREHUB/PHARE/issues/1243" style="left: 50.07%; --r: 5.0" data-tip="#1243 closed (completed): Access to h5 data?" aria-label="#1243 closed (completed): Access to h5 data?"></a>
+<a class="dot c6" href="https://github.com/PHAREHUB/PHARE/issues/1244" style="left: 50.78%; --r: 5.0" data-tip="#1244 closed (completed): Sawtooth timestepping in mhd_harris" aria-label="#1244 closed (completed): Sawtooth timestepping in mhd_harris"></a>
+      </div>
+      <span class="cnt">3</span>
+      <span class="lab"><span class="sw c5"></span>Reviews</span>
+      <div class="track">
+<a class="dot c5" href="https://github.com/PHAREHUB/PHARE/pull/1231" style="left: 36.25%; --r: 4.0" data-tip="@PhilipDeegan reviewed #1231 by @igirault (commented)" aria-label="@PhilipDeegan reviewed #1231 by @igirault (commented)"></a>
+      </div>
+      <span class="cnt">1</span>
+      <span class="lab"><span class="sw bad"></span>CI failures</span>
+      <div class="track">
+<span class="dot bad" style="left: 5.31%; --r: 4.0" data-tip="GitHub Actions · CMake Ubuntu failed on tmp_schedules"></span><span class="dot bad" style="left: 5.31%; --r: 4.0" data-tip="GitHub Actions · CodeQL failed on tmp_schedules"></span><span class="dot bad" style="left: 11.54%; --r: 4.0" data-tip="GitHub Actions · CMake Ubuntu failed on derived-quantities"></span><span class="dot bad" style="left: 14.64%; --r: 4.0" data-tip="GitHub Actions · CMake Ubuntu failed on mhd-magnetic-splitting"></span><span class="dot bad" style="left: 18.8%; --r: 4.0" data-tip="GitHub Actions · CMake Ubuntu failed on mhd-adaptive-timestep"></span><span class="dot bad" style="left: 18.8%; --r: 4.0" data-tip="GitHub Actions · CodeQL failed on mhd-adaptive-timestep"></span><span class="dot bad" style="left: 43.3%; --r: 4.0" data-tip="TeamCity · Build Docker-dep images failed on unknown branch"></span><span class="dot bad" style="left: 96.88%; --r: 4.0" data-tip="TeamCity · gh_master_gcc_samraisub_weekly_gcov failed on unknown branch"></span>      </div>
+      <span class="cnt">8</span>
+    </div>
+  </div>
+  <details>
+    <summary>Daily numbers as a table</summary>
+    <div class="tablebox"><table>
+      <thead><tr><th>Day</th><th class="num">Commits</th><th class="num">Issues opened</th><th class="num">Issues closed</th><th class="num">PRs opened</th><th class="num">PRs merged</th><th class="num">PRs closed</th><th class="num">Reviews</th><th class="num">Comments</th><th class="num">CI builds</th><th class="num">CI failed</th></tr></thead>
+      <tbody><tr><td>Mon 6 Jul</td><td class="num zero">0</td><td class="num zero">0</td><td class="num zero">0</td><td class="num">2</td><td class="num zero">0</td><td class="num zero">0</td><td class="num zero">0</td><td class="num zero">0</td><td class="num">30</td><td class="num">3</td></tr><tr><td>Tue 7 Jul</td><td class="num zero">0</td><td class="num">1</td><td class="num">1</td><td class="num zero">0</td><td class="num zero">0</td><td class="num zero">0</td><td class="num zero">0</td><td class="num">5</td><td class="num">18</td><td class="num">3</td></tr><tr><td>Wed 8 Jul</td><td class="num">3</td><td class="num zero">0</td><td class="num zero">0</td><td class="num zero">0</td><td class="num">3</td><td class="num zero">0</td><td class="num">1</td><td class="num zero">0</td><td class="num">6</td><td class="num zero">0</td></tr><tr><td>Thu 9 Jul</td><td class="num zero">0</td><td class="num">2</td><td class="num">2</td><td class="num zero">0</td><td class="num zero">0</td><td class="num zero">0</td><td class="num zero">0</td><td class="num">13</td><td class="num">4</td><td class="num">1</td></tr><tr><td>Fri 10 Jul</td><td class="num zero">0</td><td class="num zero">0</td><td class="num zero">0</td><td class="num">1</td><td class="num zero">0</td><td class="num zero">0</td><td class="num zero">0</td><td class="num zero">0</td><td class="num">4</td><td class="num zero">0</td></tr><tr><td>Sat 11 Jul</td><td class="num zero">0</td><td class="num zero">0</td><td class="num zero">0</td><td class="num zero">0</td><td class="num zero">0</td><td class="num zero">0</td><td class="num zero">0</td><td class="num">1</td><td class="num">4</td><td class="num zero">0</td></tr><tr><td>Sun 12 Jul</td><td class="num zero">0</td><td class="num zero">0</td><td class="num zero">0</td><td class="num zero">0</td><td class="num zero">0</td><td class="num zero">0</td><td class="num zero">0</td><td class="num zero">0</td><td class="num">2</td><td class="num">1</td></tr></tbody>
+    </table></div>
+  </details>
+</section>
+
+<section id="issues">
+  <header><h2>Issues</h2><span class="muted">3 opened · 3 closed</span></header>
+  <div class="grid3">
+    <div class="panel"><h3>Open issues</h3><div class="wf" style="--cols: 4" role="img" aria-label="Open issues over the week">
+  <div class="col">
+    <div class="bar total up" style="bottom: 0.0%; height: 75.0%"
+         data-tip="open at start: 149"></div>
+    <div class="v" style="bottom: calc(75.0% + 2px)">149</div>
+  </div>
+  <div class="col">
+    <div class="bar c2 up" style="bottom: 75.0%; height: 25.0%"
+         data-tip="opened: +3"></div>
+    <div class="v" style="bottom: calc(100.0% + 2px)">+3</div>
+  </div>
+  <div class="col">
+    <div class="bar c6 down" style="bottom: 75.0%; height: 25.0%"
+         data-tip="closed: -3"></div>
+    <div class="v" style="bottom: calc(100.0% + 2px)">-3</div>
+  </div>
+  <div class="col">
+    <div class="bar total up" style="bottom: 0.0%; height: 75.0%"
+         data-tip="open at end: 149"></div>
+    <div class="v" style="bottom: calc(75.0% + 2px)">149</div>
+  </div>
+<div class="lab">open at start</div><div class="lab">opened</div><div class="lab">closed</div><div class="lab">open at end</div></div>
+<span class="wf-note">The axis starts at 140 so the weekly changes stay visible.</span></div>
+    <div class="panel">
+      <h3>Labels on new issues</h3>
+      <div class="hb"><span class="name">no label</span><div class="bar c2" style="width: 100.0%" data-tip="no label: 3 new issues"></div><span class="n">3</span></div>
+    </div>
+    <div class="panel">
+      <h3>How closed issues were closed</h3>
+      <div class="split" role="img" aria-label="closing outcomes"><span class="c-other" style="flex: 3" data-tip="closed without a link: 3"></span></div>
+      <div class="legend"><span><i style="background: var(--k)" class="c-other"></i>closed without a link <span class="n">3</span></span></div>
+      <ul class="items">
+  <li>
+    <span class="n"><a href="https://github.com/PHAREHUB/PHARE/issues/1244">#1244</a></span>
+    <span class="t">Sawtooth timestepping in mhd_harris</span>
+    <span class="meta">
+        <span class="pill ok">completed</span>
+closed by <a href="https://github.com/iljah">@iljah</a>, no linked PR or commit      
+    </span>
+<blockquote>Oh right thanks, never mind then</blockquote>  </li>
+  <li>
+    <span class="n"><a href="https://github.com/PHAREHUB/PHARE/issues/1243">#1243</a></span>
+    <span class="t">Access to h5 data?</span>
+    <span class="meta">
+        <span class="pill ok">completed</span>
+closed by <a href="https://github.com/iljah">@iljah</a>, no linked PR or commit      
+    </span>
+<blockquote>Now I think I managed to load data correctly for fft2: #1242 (comment)</blockquote>  </li>
+  <li>
+    <span class="n"><a href="https://github.com/PHAREHUB/PHARE/issues/1237">#1237</a></span>
+    <span class="t">How to change number of particles / cell?</span>
+    <span class="meta">
+        <span class="pill ok">completed</span>
+closed by <a href="https://github.com/iljah">@iljah</a>, no linked PR or commit      
+    </span>
+<blockquote>Thanks!</blockquote>  </li>
+</ul>
+
+    </div>
+  </div>
+  <details><summary>All 3 new issues</summary><ul class="items">
+  <li>
+    <span class="n"><a href="https://github.com/PHAREHUB/PHARE/issues/1244">#1244</a></span>
+    <span class="t">Sawtooth timestepping in mhd_harris</span>
+    <span class="meta">
+<a href="https://github.com/iljah">@iljah</a>      
+    </span>
+  </li>
+  <li>
+    <span class="n"><a href="https://github.com/PHAREHUB/PHARE/issues/1243">#1243</a></span>
+    <span class="t">Access to h5 data?</span>
+    <span class="meta">
+<a href="https://github.com/iljah">@iljah</a>      
+    </span>
+  </li>
+  <li>
+    <span class="n"><a href="https://github.com/PHAREHUB/PHARE/issues/1242">#1242</a></span>
+    <span class="t">Plotting dispersion test</span>
+    <span class="meta">
+<a href="https://github.com/iljah">@iljah</a>      
+    </span>
+  </li>
+</ul>
+</details>
+</section>
+
+<section id="prs">
+  <header><h2>Pull requests</h2><span class="muted">3 merged · 3 opened · 0 closed unmerged</span></header>
+  <div class="grid3">
+    <div class="panel"><h3>Open PRs</h3><div class="wf" style="--cols: 5" role="img" aria-label="Open pull requests over the week">
+  <div class="col">
+    <div class="bar total up" style="bottom: 0.0%; height: 75.0%"
+         data-tip="open at start: 39"></div>
+    <div class="v" style="bottom: calc(75.0% + 2px)">39</div>
+  </div>
+  <div class="col">
+    <div class="bar c3 up" style="bottom: 75.0%; height: 25.0%"
+         data-tip="opened: +3"></div>
+    <div class="v" style="bottom: calc(100.0% + 2px)">+3</div>
+  </div>
+  <div class="col">
+    <div class="bar c7 down" style="bottom: 75.0%; height: 25.0%"
+         data-tip="merged: -3"></div>
+    <div class="v" style="bottom: calc(100.0% + 2px)">-3</div>
+  </div>
+  <div class="col">
+    <div class="bar c-other up" style="bottom: 75.0%; height: 0.8%"
+         data-tip="closed: +0"></div>
+    <div class="v" style="bottom: calc(75.8% + 2px)">+0</div>
+  </div>
+  <div class="col">
+    <div class="bar total up" style="bottom: 0.0%; height: 75.0%"
+         data-tip="open at end: 39"></div>
+    <div class="v" style="bottom: calc(75.0% + 2px)">39</div>
+  </div>
+<div class="lab">open at start</div><div class="lab">opened</div><div class="lab">merged</div><div class="lab">closed</div><div class="lab">open at end</div></div>
+<span class="wf-note">The axis starts at 30 so the weekly changes stay visible.</span></div>
+    <div class="panel" style="grid-column: span 2; min-width: min(100%, 300px)">
+      <h3>Every PR that moved this week</h3>
+      <div class="legend">
+        <span><i class="c7" style="background: var(--k)"></i>merged</span><span><i class="c3" style="background: var(--k)"></i>open</span>
+        <span><i class="c-other" style="background: var(--k)"></i>draft or closed</span>
+        <span><i style="background: var(--ink); width: 2px"></i>first human review</span>
+      </div>
+      <div class="prc">
+        <span class="h"></span><span class="h ttl-h"></span>
+        <div class="h">Time open (log scale)<div class="ticks"><span style="left: 0.0%">1 h</span><span style="left: 31.51%">1 d</span><span style="left: 50.8%">1 wk</span><span style="left: 65.23%">1 mo</span><span style="left: 90.01%">1 yr</span></div></div>
+        <div class="h">Lines changed, by area (log scale)<div class="ticks"><span style="left: 20.83%">10</span><span style="left: 40.09%">100</span><span style="left: 60.01%">1k</span><span style="left: 80.0%">10k</span></div></div>
+        <span class="rule"></span>
+        <span class="num"><span class="st c7"></span><a href="https://github.com/PHAREHUB/PHARE/pull/1234">1234</a></span>
+        <span class="ttl" data-tip="#1234 const correctness">const correctness<span class="who">@PhilipDeegan</span></span>
+        <div class="lane lane-age" data-tip="merged, open 8.0 d, first human review after 23 h (nicolasaunai)">
+          <div class="fill c7" style="width: 52.13%"></div>
+<div class="mark" style="left: 31.25%"></div>        </div>
+        <div class="lane lane-size" data-tip="+30 −29 in 3 files · core 59">
+          <div class="segs" style="width: 35.56%"><span class="c1" style="flex: 59"></span></div>
+        </div>
+        <span class="rule"></span>
+        <span class="num"><span class="st c7"></span><a href="https://github.com/PHAREHUB/PHARE/pull/1230">1230</a></span>
+        <span class="ttl" data-tip="#1230 less ghost box iteration">less ghost box iteration<span class="who">@PhilipDeegan</span></span>
+        <div class="lane lane-age" data-tip="merged, open 10.2 d, first human review after 2.1 d (UCaromel, igirault, nicolasaunai)">
+          <div class="fill c7" style="width: 54.54%"></div>
+<div class="mark" style="left: 39.02%"></div>        </div>
+        <div class="lane lane-size" data-tip="+88 −154 in 4 files · core 116 · amr 126">
+          <div class="segs" style="width: 47.71%"><span class="c1" style="flex: 116"></span><span class="c2" style="flex: 126"></span></div>
+        </div>
+        <span class="rule"></span>
+        <span class="num"><span class="st c7"></span><a href="https://github.com/PHAREHUB/PHARE/pull/1206">1206</a></span>
+        <span class="ttl" data-tip="#1206 use mpi phlop timer clocks">use mpi phlop timer clocks<span class="who">@PhilipDeegan</span></span>
+        <div class="lane lane-age" data-tip="merged, open 55.0 d, first human review after 47.0 d (nicolasaunai)">
+          <div class="fill c7" style="width: 71.24%"></div>
+<div class="mark" style="left: 69.68%"></div>        </div>
+        <div class="lane lane-size" data-tip="+81 −23 in 4 files · core 13 · amr 9 · build/ci 82">
+          <div class="segs" style="width: 40.42%"><span class="c1" style="flex: 13"></span><span class="c2" style="flex: 9"></span><span class="c6" style="flex: 82"></span></div>
+        </div>
+        <span class="rule"></span>
+        <span class="num"><span class="st c-other"></span><a href="https://github.com/PHAREHUB/PHARE/pull/1245">1245</a></span>
+        <span class="ttl" data-tip="#1245 experimental - single python module for all impls">experimental - single python module for all impls<span class="who">@PhilipDeegan</span></span>
+        <div class="lane lane-age" data-tip="closed, open 9.5 d, no human review">
+          <div class="fill c-other" style="width: 53.83%"></div>
+        </div>
+        <div class="lane lane-size" data-tip="+297 −53 in 6 files · python 8 · simulator/io 127 · build/ci 215">
+          <div class="segs" style="width: 50.91%"><span class="c3" style="flex: 8"></span><span class="c5" style="flex: 127"></span><span class="c6" style="flex: 215"></span></div>
+        </div>
+        <span class="rule"></span>
+        <span class="num"><span class="st c-other"></span><a href="https://github.com/PHAREHUB/PHARE/pull/1241">1241</a></span>
+        <span class="ttl" data-tip="#1241 Inner boundary">Inner boundary<span class="who">@igirault</span></span>
+        <div class="lane lane-age" data-tip="draft, open 90.5 d, first human review after 13.6 d (PhilipDeegan)">
+          <div class="fill c-other" style="width: 76.18%"></div>
+<div class="mark" style="left: 57.37%"></div>        </div>
+        <div class="lane lane-size" data-tip="+9,277 −86 in 72 files · core 4,831 · amr 510 · python 228 · tests 3,424 · simulator/io 9 · build/ci 2 · other 359">
+          <div class="segs" style="width: 79.43%"><span class="c1" style="flex: 4831"></span><span class="c2" style="flex: 510"></span><span class="c3" style="flex: 228"></span><span class="c4" style="flex: 3424"></span><span class="c5" style="flex: 9"></span><span class="c6" style="flex: 2"></span><span class="c-other" style="flex: 359"></span></div>
+        </div>
+        <span class="rule"></span>
+        <span class="num"><span class="st c-other"></span><a href="https://github.com/PHAREHUB/PHARE/pull/1240">1240</a></span>
+        <span class="ttl" data-tip="#1240 Derived-quantity diagnostics: generic interface (V, P, divB, J, E) + catalogue-based writer dispatch">Derived-quantity diagnostics: generic interface (V, P, divB, J, E) + catalogue-based writer dispatch<span class="who">@igirault</span></span>
+        <div class="lane lane-age" data-tip="closed, open 11.0 d, first human review after 16.0 d (PhilipDeegan)">
+          <div class="fill c-other" style="width: 55.29%"></div>
+<div class="mark" style="left: 59.03%"></div>        </div>
+        <div class="lane lane-size" data-tip="+2,421 −512 in 35 files · core 792 · amr 30 · python 66 · tests 1,040 · simulator/io 1,004 · build/ci 1">
+          <div class="segs" style="width: 69.35%"><span class="c1" style="flex: 792"></span><span class="c2" style="flex: 30"></span><span class="c3" style="flex: 66"></span><span class="c4" style="flex: 1040"></span><span class="c5" style="flex: 1004"></span><span class="c6" style="flex: 1"></span></div>
+        </div>
+      </div>
+      <div class="legend"><span><i class="c1" style="background: var(--k)"></i>core</span><span><i class="c2" style="background: var(--k)"></i>amr</span><span><i class="c3" style="background: var(--k)"></i>python</span><span><i class="c4" style="background: var(--k)"></i>tests</span><span><i class="c5" style="background: var(--k)"></i>simulator/io</span><span><i class="c6" style="background: var(--k)"></i>build/ci</span><span><i class="c-other" style="background: var(--k)"></i>other</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="people">
+  <header><h2>People</h2><span class="muted">human activity inside the week · darker = more</span></header>
+  <div class="grid3">
+    <div class="panel" style="grid-column: span 2; min-width: min(100%, 300px)">
+      <h3>Who did what</h3>
+      <div style="overflow-x: auto"><table class="heat">
+        <thead><tr><th></th><th>Commits</th><th>PRs opened</th><th>PRs merged</th><th>Reviews given</th><th>Issues opened</th><th>Issues closed</th><th>Comments</th><th>Lines on master</th></tr></thead>
+        <tbody>
+          <tr><th class="row"><a href="https://github.com/iljah">@iljah</a></th>
+<td class="z" style="--s: 0">·</td><td class="z" style="--s: 0">·</td><td class="z" style="--s: 0">·</td><td class="z" style="--s: 0">·</td><td class="" style="--s: 70">3</td><td class="" style="--s: 70">3</td><td class="" style="--s: 70">12</td>            <td style="--s: 0"><span class="zero">·</span></td></tr>
+          <tr><th class="row"><a href="https://github.com/PhilipDeegan">@PhilipDeegan</a></th>
+<td class="" style="--s: 70">3</td><td class="" style="--s: 35">1</td><td class="" style="--s: 70">3</td><td class="" style="--s: 70">1</td><td class="z" style="--s: 0">·</td><td class="z" style="--s: 0">·</td><td class="" style="--s: 18">3</td>            <td style="--s: 0"><span class="mono plus">+199</span> <span class="mono minus">−206</span></td></tr>
+          <tr><th class="row"><a href="https://github.com/nicolasaunai">@nicolasaunai</a></th>
+<td class="z" style="--s: 0">·</td><td class="z" style="--s: 0">·</td><td class="z" style="--s: 0">·</td><td class="z" style="--s: 0">·</td><td class="z" style="--s: 0">·</td><td class="z" style="--s: 0">·</td><td class="" style="--s: 23">4</td>            <td style="--s: 0"><span class="zero">·</span></td></tr>
+          <tr><th class="row"><a href="https://github.com/igirault">@igirault</a></th>
+<td class="z" style="--s: 0">·</td><td class="" style="--s: 70">2</td><td class="z" style="--s: 0">·</td><td class="z" style="--s: 0">·</td><td class="z" style="--s: 0">·</td><td class="z" style="--s: 0">·</td><td class="z" style="--s: 0">·</td>            <td style="--s: 0"><span class="zero">·</span></td></tr>
+        </tbody>
+      </table></div>
+<p class="muted" style="margin: 0; font-size: 12.5px">Bots: coderabbitai (6 reviews, 3 comments), github-advanced-security (8 reviews, 0 comments).</p>    </div>
+    <div class="panel">
+      <h3>Who reviewed whom</h3>
+      <div style="overflow-x: auto"><table class="heat">
+        <thead><tr><th style="text-align: left">reviewer ↓ · author →</th><th>igirault</th></tr></thead>
+        <tbody><tr><th class="row">PhilipDeegan</th><td class="" style="--s: 75" data-tip="PhilipDeegan reviewed igirault: 1">1</td></tr></tbody>
+      </table></div>
+      <div class="tiles" style="grid-template-columns: 1fr 1fr">
+        <div class="tile"><span class="label">Median first review</span><span class="value" style="font-size: 22px">13.6 d</span></div>
+        <div class="tile"><span class="label">Median time to merge</span><span class="value" style="font-size: 22px">10.2 d</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ci">
+  <header><h2>CI and tests</h2>
+<span class="muted">0 test executions on TeamCity · 0 failed · 0 ignored</span>  </header>
+  <p class="callout" style="margin: 0">TeamCity only keeps about 200 builds per configuration, so this week is incomplete for
+<span class="mono">gh_pr_gcc</span> (history starts 2026-08-31), <span class="mono">gh_pr_clang</span> (history starts 2026-09-03), <span class="mono">gh_pr_clang_samraisub</span> (history starts 2026-08-31), <span class="mono">gh_pr_gcc_samraisub</span> (history starts 2026-09-01).</p>
+  <div class="panel">
+    <div class="legend"><span><i class="ok" style="background: var(--k)"></i>passed</span><span><i class="bad" style="background: var(--k)"></i>failed</span><span><i class="skip" style="background: var(--k)"></i>canceled</span><span class="muted">one tick per build, placed at its finish time</span></div>
+    <div class="ci" style="--n: 7">
+      <span></span><div class="axisrow"><span style="left: 7.14%"><b class="long">Mon 6</b><b class="short">M</b></span><span style="left: 21.43%"><b class="long">Tue 7</b><b class="short">T</b></span><span style="left: 35.71%"><b class="long">Wed 8</b><b class="short">W</b></span><span style="left: 50.0%"><b class="long">Thu 9</b><b class="short">T</b></span><span style="left: 64.29%"><b class="long">Fri 10</b><b class="short">F</b></span><span style="left: 78.57%"><b class="long">Sat 11</b><b class="short">S</b></span><span style="left: 92.86%"><b class="long">Sun 12</b><b class="short">S</b></span></div><span></span>
+        <span class="grp">GitHub Actions</span>
+        <span class="name" title="CodeQL">CodeQL</span>
+        <div class="strip"><span class="tick bad" style="left: 5.31%" data-tip="CodeQL failed · tmp_schedules · Mon 08:55 UTC"></span><span class="tick ok" style="left: 5.4%" data-tip="CodeQL passed · tmp_schedules · Mon 09:04 UTC"></span><span class="tick skip" style="left: 6.68%" data-tip="CodeQL canceled · feature/outer-physical-bc · Mon 11:13 UTC"></span><span class="tick ok" style="left: 6.75%" data-tip="CodeQL passed · feature/outer-physical-bc · Mon 11:20 UTC"></span><span class="tick ok" style="left: 6.95%" data-tip="CodeQL passed · derived-quantities · Mon 11:40 UTC"></span><span class="tick ok" style="left: 7.15%" data-tip="CodeQL passed · tagging-criteria · Mon 12:00 UTC"></span><span class="tick skip" style="left: 7.39%" data-tip="CodeQL canceled · mhd-adaptive-timestep · Mon 12:25 UTC"></span><span class="tick ok" style="left: 7.7%" data-tip="CodeQL passed · remove-mhd-template-params-on-master · Mon 12:55 UTC"></span><span class="tick skip" style="left: 7.95%" data-tip="CodeQL canceled · mhd-adaptive-timestep · Mon 13:21 UTC"></span><span class="tick ok" style="left: 8.44%" data-tip="CodeQL passed · mhd-adaptive-timestep · Mon 14:10 UTC"></span><span class="tick ok" style="left: 10.74%" data-tip="CodeQL passed · mhd-adaptive-timestep · Mon 18:02 UTC"></span><span class="tick skip" style="left: 11.54%" data-tip="CodeQL canceled · derived-quantities · Mon 19:22 UTC"></span><span class="tick ok" style="left: 12.65%" data-tip="CodeQL passed · derived-quantities · Mon 21:14 UTC"></span><span class="tick ok" style="left: 12.86%" data-tip="CodeQL passed · inner-boundary · Mon 21:36 UTC"></span><span class="tick skip" style="left: 12.97%" data-tip="CodeQL canceled · feature/outer-physical-bc · Mon 21:47 UTC"></span><span class="tick ok" style="left: 14.37%" data-tip="CodeQL passed · feature/outer-physical-bc · Tue 00:08 UTC"></span><span class="tick ok" style="left: 14.64%" data-tip="CodeQL passed · mhd-magnetic-splitting · Tue 00:35 UTC"></span><span class="tick skip" style="left: 17.95%" data-tip="CodeQL canceled · derived-quantities · Tue 06:08 UTC"></span><span class="tick skip" style="left: 18.73%" data-tip="CodeQL canceled · derived-quantities · Tue 07:27 UTC"></span><span class="tick bad" style="left: 18.8%" data-tip="CodeQL failed · mhd-adaptive-timestep · Tue 07:35 UTC"></span><span class="tick skip" style="left: 18.85%" data-tip="CodeQL canceled · derived-quantities · Tue 07:39 UTC"></span><span class="tick ok" style="left: 19.11%" data-tip="CodeQL passed · derived-quantities · Tue 08:06 UTC"></span><span class="tick ok" style="left: 19.34%" data-tip="CodeQL passed · mhd-adaptive-timestep · Tue 08:29 UTC"></span><span class="tick ok" style="left: 21.86%" data-tip="CodeQL passed · mhd-adaptive-timestep · Tue 12:43 UTC"></span><span class="tick ok" style="left: 33.3%" data-tip="CodeQL passed · feature/samrai-tile-clustering-params · Wed 07:57 UTC"></span><span class="tick skip" style="left: 36.44%" data-tip="CodeQL canceled · master · Wed 13:13 UTC"></span><span class="tick skip" style="left: 36.46%" data-tip="CodeQL canceled · master · Wed 13:15 UTC"></span><span class="tick ok" style="left: 36.46%" data-tip="CodeQL passed · master · Wed 13:15 UTC"></span><span class="tick ok" style="left: 55.4%" data-tip="CodeQL passed · master · Thu 21:04 UTC"></span><span class="tick skip" style="left: 69.66%" data-tip="CodeQL canceled · godule · Fri 21:01 UTC"></span><span class="tick ok" style="left: 69.7%" data-tip="CodeQL passed · godule · Fri 21:06 UTC"></span><span class="tick ok" style="left: 78.24%" data-tip="CodeQL passed · godule · Sat 11:26 UTC"></span></div>
+        <span class="counts"><b class="okc">19</b> ✓ · <b class="badc">2</b> ✗ · 11 canceled</span>
+        <span class="name" title="CMake Ubuntu">CMake Ubuntu</span>
+        <div class="strip"><span class="tick bad" style="left: 5.31%" data-tip="CMake Ubuntu failed · tmp_schedules · Mon 08:55 UTC"></span><span class="tick ok" style="left: 5.4%" data-tip="CMake Ubuntu passed · tmp_schedules · Mon 09:04 UTC"></span><span class="tick skip" style="left: 6.68%" data-tip="CMake Ubuntu canceled · feature/outer-physical-bc · Mon 11:13 UTC"></span><span class="tick ok" style="left: 6.75%" data-tip="CMake Ubuntu passed · feature/outer-physical-bc · Mon 11:20 UTC"></span><span class="tick ok" style="left: 6.95%" data-tip="CMake Ubuntu passed · derived-quantities · Mon 11:40 UTC"></span><span class="tick ok" style="left: 7.15%" data-tip="CMake Ubuntu passed · tagging-criteria · Mon 12:00 UTC"></span><span class="tick skip" style="left: 7.39%" data-tip="CMake Ubuntu canceled · mhd-adaptive-timestep · Mon 12:25 UTC"></span><span class="tick ok" style="left: 7.7%" data-tip="CMake Ubuntu passed · remove-mhd-template-params-on-master · Mon 12:55 UTC"></span><span class="tick skip" style="left: 7.95%" data-tip="CMake Ubuntu canceled · mhd-adaptive-timestep · Mon 13:21 UTC"></span><span class="tick ok" style="left: 8.44%" data-tip="CMake Ubuntu passed · mhd-adaptive-timestep · Mon 14:10 UTC"></span><span class="tick ok" style="left: 10.74%" data-tip="CMake Ubuntu passed · mhd-adaptive-timestep · Mon 18:02 UTC"></span><span class="tick bad" style="left: 11.54%" data-tip="CMake Ubuntu failed · derived-quantities · Mon 19:22 UTC"></span><span class="tick ok" style="left: 12.65%" data-tip="CMake Ubuntu passed · derived-quantities · Mon 21:14 UTC"></span><span class="tick ok" style="left: 12.86%" data-tip="CMake Ubuntu passed · inner-boundary · Mon 21:36 UTC"></span><span class="tick ok" style="left: 12.97%" data-tip="CMake Ubuntu passed · feature/outer-physical-bc · Mon 21:47 UTC"></span><span class="tick ok" style="left: 14.37%" data-tip="CMake Ubuntu passed · feature/outer-physical-bc · Tue 00:08 UTC"></span><span class="tick bad" style="left: 14.64%" data-tip="CMake Ubuntu failed · mhd-magnetic-splitting · Tue 00:35 UTC"></span><span class="tick ok" style="left: 17.95%" data-tip="CMake Ubuntu passed · derived-quantities · Tue 06:08 UTC"></span><span class="tick skip" style="left: 18.73%" data-tip="CMake Ubuntu canceled · derived-quantities · Tue 07:27 UTC"></span><span class="tick bad" style="left: 18.8%" data-tip="CMake Ubuntu failed · mhd-adaptive-timestep · Tue 07:35 UTC"></span><span class="tick skip" style="left: 18.85%" data-tip="CMake Ubuntu canceled · derived-quantities · Tue 07:39 UTC"></span><span class="tick ok" style="left: 19.11%" data-tip="CMake Ubuntu passed · derived-quantities · Tue 08:06 UTC"></span><span class="tick ok" style="left: 19.34%" data-tip="CMake Ubuntu passed · mhd-adaptive-timestep · Tue 08:29 UTC"></span><span class="tick ok" style="left: 21.86%" data-tip="CMake Ubuntu passed · mhd-adaptive-timestep · Tue 12:43 UTC"></span><span class="tick ok" style="left: 33.3%" data-tip="CMake Ubuntu passed · feature/samrai-tile-clustering-params · Wed 07:57 UTC"></span><span class="tick skip" style="left: 69.66%" data-tip="CMake Ubuntu canceled · godule · Fri 21:01 UTC"></span><span class="tick ok" style="left: 69.7%" data-tip="CMake Ubuntu passed · godule · Fri 21:06 UTC"></span><span class="tick ok" style="left: 78.24%" data-tip="CMake Ubuntu passed · godule · Sat 11:26 UTC"></span></div>
+        <span class="counts"><b class="okc">18</b> ✓ · <b class="badc">4</b> ✗ · 6 canceled</span>
+        <span class="grp">TeamCity</span>
+        <span class="name" title="gh_master_gcc_nightly_samraisub_phlop">gh_master_gcc_nightly_samraisub_phlop</span>
+        <div class="strip"><span class="tick ok" style="left: 40.26%" data-tip="gh_master_gcc_nightly_samraisub_phlop passed ·  · Wed 19:38 UTC"></span></div>
+        <span class="counts"><b class="okc">1</b> ✓ · <b class="">0</b> ✗ · 0 canceled</span>
+        <span class="name" title="build_samrai_upstream_dep">build_samrai_upstream_dep</span>
+        <div class="strip"><span class="tick ok" style="left: 43.07%" data-tip="build_samrai_upstream_dep passed ·  · Thu 00:21 UTC"></span></div>
+        <span class="counts"><b class="okc">1</b> ✓ · <b class="">0</b> ✗ · 0 canceled</span>
+        <span class="name" title="Build Docker-dep images">Build Docker-dep images</span>
+        <div class="strip"><span class="tick bad" style="left: 43.3%" data-tip="Build Docker-dep images failed ·  · Thu 00:44 UTC"></span></div>
+        <span class="counts"><b class="okc">0</b> ✓ · <b class="badc">1</b> ✗ · 0 canceled</span>
+        <span class="name" title="gh_master_clang_nightly_samraisub_phlop_asan">gh_master_clang_nightly_samraisub_phlop_asan</span>
+        <div class="strip"><span class="tick ok" style="left: 52.68%" data-tip="gh_master_clang_nightly_samraisub_phlop_asan passed ·  · Thu 16:30 UTC"></span></div>
+        <span class="counts"><b class="okc">1</b> ✓ · <b class="">0</b> ✗ · 0 canceled</span>
+        <span class="name" title="gh_master_gcc_weekly_samraisub">gh_master_gcc_weekly_samraisub</span>
+        <div class="strip"><span class="tick ok" style="left: 74.53%" data-tip="gh_master_gcc_weekly_samraisub passed ·  · Sat 05:12 UTC"></span></div>
+        <span class="counts"><b class="okc">1</b> ✓ · <b class="">0</b> ✗ · 0 canceled</span>
+        <span class="name" title="gh_master_clang_weekly_asan">gh_master_clang_weekly_asan</span>
+        <div class="strip"><span class="tick ok" style="left: 80.68%" data-tip="gh_master_clang_weekly_asan passed ·  · Sat 15:32 UTC"></span></div>
+        <span class="counts"><b class="okc">1</b> ✓ · <b class="">0</b> ✗ · 0 canceled</span>
+        <span class="name" title="gh_master_gcc_samraisub_weekly_gcov">gh_master_gcc_samraisub_weekly_gcov</span>
+        <div class="strip"><span class="tick bad" style="left: 96.88%" data-tip="gh_master_gcc_samraisub_weekly_gcov failed ·  · Sun 18:45 UTC"></span></div>
+        <span class="counts"><b class="okc">0</b> ✓ · <b class="badc">1</b> ✗ · 0 canceled</span>
+        <span class="name" title="gh_master_gcc_samraisub_weekly_caliper">gh_master_gcc_samraisub_weekly_caliper</span>
+        <div class="strip"><span class="tick ok" style="left: 97.68%" data-tip="gh_master_gcc_samraisub_weekly_caliper passed ·  · Sun 20:06 UTC"></span></div>
+        <span class="counts"><b class="okc">1</b> ✓ · <b class="">0</b> ✗ · 0 canceled</span>
+    </div>
+  </div>
+</section>
+
+<section id="code">
+  <header><h2>Code on master</h2><span class="muted">3 commits · lines removed ← → lines added</span></header>
+  <div class="grid2">
+    <div class="panel">
+      <h3>Where the code changed</h3>
+      <div class="churn">
+        <span class="name"><span class="sw c1"></span>core</span>
+        <div class="l" data-tip="core: −91 lines"><em>91</em><i style="width: 91.0%"></i></div>
+        <div class="r" data-tip="core: +97 lines in 7 files"><i style="width: 97.0%"></i><em>97</em></div>
+        <span class="name"><span class="sw c2"></span>amr</span>
+        <div class="l" data-tip="amr: −100 lines"><em>100</em><i style="width: 100.0%"></i></div>
+        <div class="r" data-tip="amr: +35 lines in 3 files"><i style="width: 35.0%"></i><em>35</em></div>
+        <span class="name"><span class="sw c6"></span>build/ci</span>
+        <div class="l" data-tip="build/ci: −15 lines"><em>15</em><i style="width: 15.0%"></i></div>
+        <div class="r" data-tip="build/ci: +67 lines in 1 files"><i style="width: 67.0%"></i><em>67</em></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Commits</h3>
+<details><summary>3 commits on master (also dots on the timeline)</summary><ul class="items">
+        <li><span class="n"><a href="https://github.com/PHAREHUB/PHARE/commit/edc6fde4ba8f85284cf165dcc75791e8a3fe4873">edc6fde</a></span><span class="t">less ghost box iteration (#1230)</span>
+          <span class="meta"><a href="https://github.com/PhilipDeegan">@PhilipDeegan</a> <span class="mono"><span class="plus">+88</span> <span class="minus">−154</span></span></span></li>
+        <li><span class="n"><a href="https://github.com/PHAREHUB/PHARE/commit/58dd04a7868b3affcb50d3d0e46aed6bd1e4f623">58dd04a</a></span><span class="t">const correctness (#1234)</span>
+          <span class="meta"><a href="https://github.com/PhilipDeegan">@PhilipDeegan</a> <span class="mono"><span class="plus">+30</span> <span class="minus">−29</span></span></span></li>
+        <li><span class="n"><a href="https://github.com/PHAREHUB/PHARE/commit/8e4db5bf4086577dfebd1b627035896da16d2215">8e4db5b</a></span><span class="t">use mpi phlop timer clocks (#1206)</span>
+          <span class="meta"><a href="https://github.com/PhilipDeegan">@PhilipDeegan</a> <span class="mono"><span class="plus">+81</span> <span class="minus">−23</span></span></span></li>
+      </ul></details>    </div>
+  </div>
+</section>
+
+<footer>
+  Generated 5 Oct 2026, 10:00 UTC from the GitHub API and the LPP TeamCity server.
+  Source: <a href="https://github.com/PHAREHUB/pharehub.github.io/tree/main/tools/report">tools/report</a>.
+</footer>
+</div>
+<div id="tip" hidden></div>
+<script>
+(() => {
+  const tip = document.getElementById("tip");
+  const show = (e) => {
+    const el = e.target.closest("[data-tip]");
+    if (!el) { tip.hidden = true; return; }
+    tip.textContent = el.dataset.tip;
+    tip.hidden = false;
+    const r = el.getBoundingClientRect(), half = tip.offsetWidth / 2 + 8;
+    tip.style.left = Math.min(Math.max(r.left + r.width / 2, half), innerWidth - half) + "px";
+    tip.style.top = Math.max(r.top, 30) + "px";
+  };
+  document.addEventListener("pointerover", show);
+  document.addEventListener("focusin", show);
+  document.addEventListener("pointerleave", () => { tip.hidden = true; });
+  document.addEventListener("scroll", () => { tip.hidden = true; }, { passive: true });
+})();
+</script>
+</body>
+</html>

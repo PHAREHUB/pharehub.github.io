@@ -1,0 +1,60 @@
+# Weekly PHARE activity report: collect last week's data from GitHub and TeamCity,
+# archive it in data/, regenerate reports/, and commit both (GitHub Pages serves them).
+name: activity report
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"   # Mondays 06:00 UTC, right after the ISO week ends
+  workflow_dispatch:
+    inputs:
+      period:
+        description: "ISO week to (re)generate, e.g. 2026-W40. Empty = last complete week."
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: activity-report
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: tools/report
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: pip install -r requirements.txt
+
+      - name: Test
+        run: python -m pytest -q tests
+
+      - name: Collect
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PERIOD: ${{ inputs.period }}
+        run: python -m phare_report.collect $PERIOD --data ../../data
+
+      - name: Render
+        run: python -m phare_report.render --data ../../data --out ../../reports
+
+      - name: Commit
+        env:
+          PERIOD: ${{ inputs.period }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ../../data ../../reports
+          if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
+          git commit -m "activity report ${PERIOD:-$(date -u +%G-W%V --date='7 days ago')}"
+          git push

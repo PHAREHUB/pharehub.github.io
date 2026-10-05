@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}PHARE activity reports{% endblock %}
+
+{% block body %}
+<header class="top">
+  <nav class="crumbs" aria-label="Site navigation">
+    <a href="../index.html">PHARE home</a><span class="sep">/</span><a href="https://github.com/PHAREHUB/PHARE">PHAREHUB/PHARE</a>
+  </nav>
+  <span class="eyebrow">ACTIVITY REPORTS</span>
+  <h1>What happened in PHARE, week by week</h1>
+  <p class="sub" style="margin:0;max-width:65ch">Each report covers one ISO week (Monday to Sunday, UTC): issues and pull requests
+    opened, closed and merged, who did what, reviews, and how the CI and the test suite behaved.
+    A new report is published every Monday morning.</p>
+</header>
+
+{% if rows %}
+<section id="trend">
+  <header><h2>Trend</h2><span class="muted">{{ rows | length }} weeks archived</span></header>
+  <div class="smalls">
+    {% for c in trend %}
+    <div class="small"><div class="head"><span>{{ c.title }}</span><b>{{ c.last | num }}</b></div>{{ c.svg | safe }}</div>
+    {% endfor %}
+  </div>
+</section>
+
+<section id="weeks">
+  <header><h2>Weekly reports</h2></header>
+  <div class="tablebox"><table>
+    <thead><tr><th>Week</th><th>Dates</th><th class="num">Commits</th><th class="num">PRs merged</th><th class="num">PRs opened</th><th class="num">Issues opened</th><th class="num">Issues closed</th><th class="num">Reviews</th><th class="num">CI builds</th><th class="num">Test executions</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr>
+        <td><a class="mono" href="weekly/{{ r.name }}.html">{{ r.name }}</a></td>
+        <td>{{ r.start.strftime("%-d %b") }} – {{ r.last_day.strftime("%-d %b %Y") }}</td>
+        {% for key in ["commits", "prs_merged", "prs_opened", "issues_opened", "issues_closed", "reviews", "ci_builds", "tests_run"] %}
+        <td class="num{{ ' zero' if not r[key] }}">{{ r[key] | num }}</td>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</section>
+{% else %}
+<p class="empty">No report has been generated yet.</p>
+{% endif %}
+{% endblock %}
