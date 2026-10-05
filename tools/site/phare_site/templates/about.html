@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}About PHARE{% endblock %}
+
+{% block body %}
+<header class="top">
+  <span class="eyebrow">ABOUT</span>
+  <h1>The team behind PHARE</h1>
+</header>
+
+<div class="grid2">
+  <section aria-labelledby="team-h">
+    <header><h2 id="team-h">Core team</h2></header>
+    <div class="people">{% for p in c.team.core %}<a href="{{ p.url }}">{{ p.name }}</a>{% endfor %}</div>
+    <h3>Former collaborators</h3>
+    <div class="people">{% for p in c.team.former %}<a href="{{ p.url }}">{{ p.name }}</a>{% endfor %}</div>
+  </section>
+  <section aria-labelledby="support-h">
+    <header><h2 id="support-h">Support</h2></header>
+    <div class="people">{% for s in c.team.support %}<a href="{{ s.url }}">{{ s.name }}</a>{% endfor %}</div>
+  </section>
+</div>
+
+<section id="cite" aria-labelledby="cite-h">
+  <header><h2 id="cite-h">Cite PHARE</h2><a href="{{ c.site.paper_arxiv }}">free version on arXiv →</a></header>
+  <p style="margin:0;color:var(--ink-2)">If PHARE helps your research, please cite the method paper
+    (<a href="{{ c.site.paper_doi }}">Computer Physics Communications, 2024</a>):</p>
+  <div class="cite">
+    <pre id="bibtex">{{ c.publications.cite_bibtex }}</pre>
+    <button type="button" id="copy-bibtex">Copy BibTeX</button>
+  </div>
+  <ul class="items">
+    {% for p in c.publications.papers %}
+    <li><span class="n">{{ p.year }}</span><span class="t"><a href="{{ p.url }}">{{ p.title }}</a></span>
+      <span class="meta">{{ p.authors }} · {{ p.venue }} · <a href="{{ p.free_url }}">free version</a></span>
+      <span class="meta">{{ p.role }}</span></li>
+    {% endfor %}
+  </ul>
+</section>
+
+<div class="grid2">
+  <section aria-labelledby="contact-h">
+    <header><h2 id="contact-h">Contact</h2></header>
+    <p style="margin:0;color:var(--ink-2)">Write to <span class="mono">{{ c.site.email }}</span>
+      (<a href="mailto:{{ c.site.email }}">open in your mail app</a>). Bugs and questions about the code are best asked in
+      <a href="{{ c.site.github }}/issues">GitHub issues</a>.</p>
+  </section>
+  <section aria-labelledby="licence-h">
+    <header><h2 id="licence-h">Licence</h2></header>
+    <p style="margin:0;color:var(--ink-2)">PHARE is free software under the <a href="{{ c.site.license_url }}">GNU General Public License v3</a>.</p>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById("copy-bibtex").addEventListener("click", (e) => {
+  const text = document.getElementById("bibtex").textContent, btn = e.currentTarget;
+  const done = (msg) => { btn.textContent = msg; setTimeout(() => { btn.textContent = "Copy BibTeX"; }, 1600); };
+  navigator.clipboard.writeText(text).then(() => done("Copied"), () => {
+    const r = document.createRange(); r.selectNodeContents(document.getElementById("bibtex"));
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r); done("Selected: press Ctrl+C");
+  });
+});
+</script>
+{% endblock %}

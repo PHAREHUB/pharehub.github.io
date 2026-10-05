@@ -10,7 +10,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from jinja2 import Environment, PackageLoader, select_autoescape
+from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PackageLoader, select_autoescape
 
 from . import svg, visual
 from .analyze import analyze, period_of
@@ -33,7 +33,9 @@ def _days(d):
 
 
 def environment():
-    env = Environment(loader=PackageLoader("phare_report", "templates"),
+    # tools/common holds the CSS shared with the site pages
+    common = Path(__file__).resolve().parents[2] / "common"
+    env = Environment(loader=ChoiceLoader([PackageLoader("phare_report", "templates"), FileSystemLoader(common)]),
                       autoescape=select_autoescape(), trim_blocks=True, lstrip_blocks=True)
     env.filters.update(num=_num, hours=_duration_h, days=_days)
     env.globals.update(svg=svg, max=max, sum=sum)

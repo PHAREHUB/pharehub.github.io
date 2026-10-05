@@ -1,0 +1,43 @@
+# source: PHARE/readme.md ("Active core team", "Former collaborators", "Acknowledgments")
+
+[[core]]
+name = "Nicolas Aunai"
+url = "https://github.com/nicolasaunai"
+[[core]]
+name = "Philip Deegan"
+url = "https://github.com/PhilipDeegan"
+[[core]]
+name = "Roch Smets"
+url = "https://github.com/rochsmets"
+[[core]]
+name = "Andrea Ciardi"
+url = "https://sites.google.com/site/andreaciardihomepage/home"
+[[core]]
+name = "Ulysse Caromel"
+url = "https://github.com/UCaromel"
+[[core]]
+name = "Ivan Girault"
+url = "https://github.com/igirault"
+
+[[former]]
+name = "Thibault Payet"
+url = "https://github.com/monwarez"
+
+[[support]]
+name = "Laboratory of Plasma Physics (LPP)"
+url = "https://www.lpp.polytechnique.fr"
+[[support]]
+name = "Plas@Par"
+url = "http://www.plasapar.sorbonne-universite.fr/"
+[[support]]
+name = "LERMA"
+url = "https://lerma.obspm.fr"
+[[support]]
+name = "CNES"
+url = "https://cnes.fr"
+[[support]]
+name = "CIEDS"
+url = "https://www.ip-paris.fr/cieds"
+[[support]]
+name = "AID"
+url = "https://www.defense.gouv.fr/aid"

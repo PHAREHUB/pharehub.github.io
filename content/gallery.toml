@@ -1,0 +1,58 @@
+# Physics setups shipped with PHARE (tests/functional/ in the PHARE repo).
+# "image" is filled once the figure is produced (content/gallery/ keeps the script).
+
+[[setups]]
+name = "Harris current sheet"
+model = "hybrid"
+dims = "2D, 3D"
+path = "tests/functional/harris"
+what = "Magnetic reconnection in a Harris current sheet, with automatic refinement."
+
+[[setups]]
+name = "Shocks from a magnetic jump"
+model = "hybrid"
+dims = "1D"
+path = "tests/functional/shock"
+what = "Shocks launched by a large jump in the magnetic field, a Riemann-type setup."
+
+[[setups]]
+name = "Alfvén wave"
+model = "hybrid"
+dims = "1D"
+path = "tests/functional/alfven_wave"
+what = "Propagation of an Alfvén wave."
+
+[[setups]]
+name = "Ion-ion beam instability"
+model = "hybrid"
+dims = "1D"
+path = "tests/functional/ionIonBeam"
+what = "Growth of an electromagnetic instability driven by two ion populations."
+
+[[setups]]
+name = "Dispersion relations"
+model = "hybrid"
+dims = "1D"
+path = "tests/functional/dispersion"
+what = "Waves excited by noise, compared with the expected dispersion relation."
+
+[[setups]]
+name = "Orszag-Tang vortex"
+model = "MHD"
+dims = "2D, 3D"
+path = "tests/functional/mhd_orszagtang"
+what = "The classic MHD turbulence benchmark."
+
+[[setups]]
+name = "MHD rotor"
+model = "MHD"
+dims = "2D"
+path = "tests/functional/mhd_rotor"
+what = "A rotating dense disc launching torsional Alfvén waves."
+
+[[setups]]
+name = "MHD shock tube"
+model = "MHD"
+dims = "1D"
+path = "tests/functional/mhd_shock"
+what = "Riemann problem testing the shock-capturing scheme."

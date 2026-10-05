@@ -1,0 +1,25 @@
+# Newest first. Sources: this repo's history, PHARE/readme.md, the 2020 site's news list.
+
+[[items]]
+date = "2026-10-05"
+text = "Weekly activity reports are now published: issues, pull requests, reviews, CI and tests, week by week."
+url = "reports/index.html"
+
+[[items]]
+date = "2024"
+text = "The PHARE method paper is published in Computer Physics Communications."
+url = "https://doi.org/10.1016/j.cpc.2023.108966"
+
+[[items]]
+date = "2020-11-20"
+text = "First 1D run with self-consistent refinement."
+
+[[items]]
+date = "2020-11-07"
+text = "Our paper on particle splitting is published in Computer Physics Communications."
+url = "https://doi.org/10.1016/j.cpc.2020.107666"
+
+[[items]]
+date = "2020-05-29"
+text = "First 1D run on two fixed grids: an Alfvén wave crossing a refined patch."
+url = "model.html#first-run"

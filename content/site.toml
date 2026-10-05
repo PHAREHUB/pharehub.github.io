@@ -1,0 +1,48 @@
+# Site-wide facts. Every claim cites where it comes from; "validate" marks text the team must check.
+
+name = "PHARE"
+expansion = "Parallel Hybrid particle-in-cell code with Adaptive mesh REfinement"
+# source: PHARE/readme.md
+summary = """PHARE is a hybrid particle-in-cell code: it follows any number of ion populations \
+as particles (Vlasov equation) and models electrons as a single fluid whose momentum equation \
+gives the electric field. Patch-based adaptive mesh refinement, from the SAMRAI library, \
+increases the resolution only where the solution needs it, to bridge sub-ion scales and \
+large MHD scales."""
+tagline = "Kinetic ions where it matters, at the scale of whole systems."
+validate_tagline = true
+
+github = "https://github.com/PHAREHUB/PHARE"
+docs = "https://phare.readthedocs.io/en/latest/"
+youtube = "https://www.youtube.com/@PHARE-v1u"
+email = "phare@lpp.polytechnique.fr"
+license = "GPLv3"
+license_url = "https://www.gnu.org/licenses/gpl-3.0"
+paper_doi = "https://doi.org/10.1016/j.cpc.2023.108966"
+paper_arxiv = "https://arxiv.org/abs/2210.14580"
+
+hero_image = "static/img/hero.jpg"
+# validate: exact setup of this run (from the PHARE readme image)
+hero_caption = """Ion density in a 2D current-sheet simulation at t = 424.66 (in ion units): \
+a chain of plasmoids along the sheet. Top: the full domain. Middle: the AMR patches \
+in the boxed region. Bottom: zoom on the density in that region."""
+
+# Key facts strip. source: src/core/utilities/meta/meta_utilities.hpp (possibleSimulators),
+# src/amr/wrappers/hierarchy.hpp:380 (ratio 2), pyphare/pharein/load_balancer.py, readme.md
+[[facts]]
+value = "1D · 2D · 3D"
+label = "dimensions"
+[[facts]]
+value = "AMR"
+label = "patch-based, refinement ratio 2"
+[[facts]]
+value = "MPI"
+label = "with dynamic load balancing"
+[[facts]]
+value = "Python"
+label = "to set up runs and analyse them"
+[[facts]]
+value = "GPLv3"
+label = "open source"
+[[facts]]
+value = "CPC 2024"
+label = "peer-reviewed method paper"

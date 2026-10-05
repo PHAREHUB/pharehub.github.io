@@ -1,5 +1,7 @@
-# Weekly PHARE activity report: collect last week's data from GitHub and TeamCity,
-# archive it in data/, regenerate reports/, and commit both (GitHub Pages serves them).
+# Weekly PHARE activity report + site rebuild.
+# Mondays: collect last week's data from GitHub and TeamCity into data/, regenerate reports/
+# and the site pages, commit (GitHub Pages serves them).
+# Pushes that change the site sources: rebuild the site only.
 name: activity report
 
 on:
@@ -11,6 +13,9 @@ on:
         description: "ISO week to (re)generate, e.g. 2026-W40. Empty = last complete week."
         required: false
         default: ""
+  push:
+    branches: [main]
+    paths: ["content/**", "static/**", "tools/**"]
 
 permissions:
   contents: write
@@ -23,9 +28,6 @@ jobs:
   report:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    defaults:
-      run:
-        working-directory: tools/report
     steps:
       - uses: actions/checkout@v4
 
@@ -34,27 +36,42 @@ jobs:
           python-version: "3.12"
 
       - name: Install
-        run: pip install -r requirements.txt
+        run: pip install -r tools/report/requirements.txt
 
       - name: Test
-        run: python -m pytest -q tests
+        run: |
+          (cd tools/report && python -m pytest -q tests)
+          (cd tools/site && python -m pytest -q tests)
 
-      - name: Collect
+      - name: Collect last week
+        if: github.event_name != 'push'
+        working-directory: tools/report
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PERIOD: ${{ inputs.period }}
         run: python -m phare_report.collect $PERIOD --data ../../data
 
-      - name: Render
-        run: python -m phare_report.render --data ../../data --out ../../reports
+      - name: Refresh good first issues
+        if: github.event_name != 'push'
+        working-directory: tools/site
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python -m phare_site.fetch --root ../..
+
+      - name: Render reports and site
+        run: |
+          (cd tools/report && python -m phare_report.render --data ../../data --out ../../reports)
+          (cd tools/site && python -m phare_site.build --root ../.. && python -m phare_site.check --root ../..)
 
       - name: Commit
         env:
           PERIOD: ${{ inputs.period }}
+          EVENT: ${{ github.event_name }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add ../../data ../../reports
+          git add data reports *.html
           if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
-          git commit -m "activity report ${PERIOD:-$(date -u +%G-W%V --date='7 days ago')}"
+          if [ "$EVENT" = push ]; then MSG="site: rebuild"; else MSG="activity report ${PERIOD:-$(date -u +%G-W%V --date='7 days ago')}"; fi
+          git commit -m "$MSG"
           git push

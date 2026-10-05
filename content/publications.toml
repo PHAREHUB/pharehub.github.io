@@ -1,0 +1,32 @@
+# source: PHARE/readme.md ("Publications")
+
+cite_bibtex = """@article{AUNAI2024108966,
+  title    = {PHARE: Parallel hybrid particle-in-cell code with patch-based adaptive mesh refinement},
+  journal  = {Computer Physics Communications},
+  volume   = {295},
+  pages    = {108966},
+  year     = {2024},
+  issn     = {0010-4655},
+  doi      = {10.1016/j.cpc.2023.108966},
+  url      = {https://www.sciencedirect.com/science/article/pii/S0010465523003119},
+  author   = {Nicolas Aunai and Roch Smets and Andrea Ciardi and Philip Deegan and Alexis Jeandet and Thibault Payet and Nathan Guyot and Loic Darrieumerlou},
+  keywords = {Particle in cell, Adaptive mesh refinement, Collisionless plasmas},
+}"""
+
+[[papers]]
+authors = "N. Aunai, R. Smets, A. Ciardi, P. Deegan, A. Jeandet, T. Payet, N. Guyot, L. Darrieumerlou"
+title = "PHARE: Parallel hybrid particle-in-cell code with patch-based adaptive mesh refinement"
+venue = "Computer Physics Communications 295, 108966"
+year = 2024
+url = "https://doi.org/10.1016/j.cpc.2023.108966"
+free_url = "https://arxiv.org/abs/2210.14580"
+role = "The method paper: cite this when you use PHARE."
+
+[[papers]]
+authors = "R. Smets et al."
+title = "A new method to dispatch split particles in Particle-In-Cell codes"
+venue = "Computer Physics Communications 261, 107666"
+year = 2021
+url = "https://doi.org/10.1016/j.cpc.2020.107666"
+free_url = "https://universite-paris-saclay.hal.science/hal-03203893/"
+role = "How PHARE splits particles when they enter a refined level."

@@ -1,16 +1,33 @@
-# lppwebsite
+# pharehub.github.io
 
-This site is meant to serve as a portfolio for the created content of LPP.
+The PHARE website, served by GitHub Pages at https://pharehub.github.io/.
 
-# Content
+The HTML pages at the root and in `reports/` are generated: edit the sources, not the pages.
 
-Right now, share whatever you think is usefull to share.
+| Edit this | to change |
+|---|---|
+| `content/*.toml` | team, publications, news, capabilities, roadmap, gallery, site-wide facts |
+| `content/model_body.html` | the physics text of `model.html` |
+| `tools/site/phare_site/templates/` | page layouts of the site |
+| `tools/report/phare_report/templates/` | page layouts of the activity reports |
+| `tools/common/phare.css` | colours, fonts and components shared by the site and the reports |
+| `static/` | images and video |
 
-# Contributing
+## Build locally
 
-If you've created a web page, video, slideshow, or any other kind of media you think should be shared through this directory you should:
+```bash
+python3 -m venv .venv && .venv/bin/pip install -r tools/report/requirements.txt
+cd tools/site
+../../.venv/bin/python -m phare_site.fetch --root ../..          # refresh good first issues (network)
+../../.venv/bin/python -m phare_site.build --root ../.. --drafts # --drafts shows "to validate" badges
+../../.venv/bin/python -m phare_site.check --root ../..          # links, anchors, allowed scripts
+../../.venv/bin/python -m pytest -q tests
+```
 
-1. Fork this repository.
-1. Add a link to your content on the appropriate course page.
-1. Commit your changes.
-1. Submit a pull request.
+Activity reports: see `tools/report/` (`collect` fetches a week into `data/weekly/`, `render` writes `reports/`).
+
+## Automation
+
+`.github/workflows/activity-report.yml` runs every Monday 06:00 UTC: it collects last week's activity,
+refreshes the good-first-issue list, rebuilds the reports and the site, and commits the result.
+It also rebuilds the site when `content/`, `static/` or `tools/` change on `main`.

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Science with PHARE{% endblock %}
+
+{% block body %}
+<header class="top">
+  <span class="eyebrow">SCIENCE</span>
+  <h1>Collisionless plasmas across scales</h1>
+  <p class="sub" style="margin:0;max-width:65ch">Hybrid simulations keep the ion kinetic physics that fluid models lose,
+    at a fraction of the cost of fully kinetic codes. Mesh refinement puts that resolution only where the physics needs it:
+    current sheets, shock fronts, boundary layers.</p>
+</header>
+
+<figure>
+  <img src="{{ c.site.hero_image }}" srcset="static/img/hero-900.jpg 900w, {{ c.site.hero_image }} 1600w" sizes="(max-width: 1080px) 100vw, 1048px"
+       width="1600" height="1067" alt="Ion density from a 2D PHARE run: plasmoid chain, refinement patches, zoom.">
+  <figcaption>{{ c.site.hero_caption }} <span class="validate-badge">to validate</span></figcaption>
+</figure>
+
+<section aria-labelledby="setups-h">
+  <header><h2 id="setups-h">Setups that ship with the code</h2><span class="muted">each one is also a test, in <code>tests/functional/</code></span></header>
+  <div class="cards">
+    {% for s in c.gallery.setups %}
+    <div class="card">
+      <div class="tags"><span class="chip {{ s.model | lower }}">{{ s.model }}</span><span class="chip">{{ s.dims }}</span></div>
+      <h3>{{ s.name }}</h3>
+      <p>{{ s.what }}</p>
+      <p><a class="mono" style="font-size:12.5px" href="{{ c.site.github }}/tree/master/{{ s.path }}">{{ s.path }}</a></p>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<div class="grid2">
+  <section aria-labelledby="pubs-h">
+    <header><h2 id="pubs-h">Publications</h2></header>
+    <ul class="items">
+      {% for p in c.publications.papers %}
+      <li><span class="n">{{ p.year }}</span><span class="t"><a href="{{ p.url }}">{{ p.title }}</a></span>
+        <span class="meta">{{ p.authors }} · {{ p.venue }} · <a href="{{ p.free_url }}">free version</a></span></li>
+      {% endfor %}
+    </ul>
+  </section>
+  <section aria-labelledby="videos-h">
+    <header><h2 id="videos-h">Videos</h2></header>
+    <div class="card"><h3>PHARE on YouTube</h3><p>Runs and talks on the <a href="{{ c.site.youtube }}">PHARE channel</a>.</p></div>
+  </section>
+</div>
+{% endblock %}

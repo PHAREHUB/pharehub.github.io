@@ -1,0 +1,66 @@
+# What PHARE can and cannot do today. status: "yes" | "partial" | "no".
+# Each row cites its source in the PHARE repo (upstream/master, 2026-10-05).
+
+[[rows]]
+feature = "Dimensions"
+status = "yes"
+detail = "1D, 2D and 3D."
+source = "src/core/utilities/meta/meta_utilities.hpp, possibleSimulators()"
+
+[[rows]]
+feature = "Particle shape"
+status = "yes"
+detail = "Interpolation orders 1, 2 and 3."
+source = "possibleSimulators()"
+
+[[rows]]
+feature = "Ion populations"
+status = "yes"
+detail = "Any number of populations, each with its own charge, mass and initial distribution (Maxwellian fluid model)."
+source = "pyphare/pharein/maxwellian_fluid_model.py"
+
+[[rows]]
+feature = "Electrons"
+status = "yes"
+detail = "Single fluid with an isothermal closure."
+source = "pyphare/pharein/electron_model.py"
+
+[[rows]]
+feature = "Mesh refinement"
+status = "yes"
+detail = "Fixed refinement boxes, or automatic tagging on magnetic field gradients. Refinement ratio 2."
+source = "src/amr/tagging/default_tagger_strategy.hpp, src/amr/wrappers/hierarchy.hpp:380"
+
+[[rows]]
+feature = "Boundary conditions"
+status = "partial"
+detail = "Periodic only. Physical boundaries are in review."
+source = "pyphare/pharein/simulation.py check_boundaries(); PR #1318"
+link = "https://github.com/PHAREHUB/PHARE/pull/1318"
+
+[[rows]]
+feature = "MHD"
+status = "partial"
+detail = "An MHD solver (Riemann solvers, reconstructions, constrained transport). Coupling MHD and hybrid levels in one run is in progress."
+source = "src/core/numerics (MHD), src/amr/solvers/solver_mhd.hpp; PR #1309"
+link = "https://github.com/PHAREHUB/PHARE/pull/1309"
+validate = true
+
+[[rows]]
+feature = "Parallelism"
+status = "yes"
+detail = "MPI, with load balancing by particle count or by cell count. Multithreading is in progress."
+source = "pyphare/pharein/load_balancer.py; PR #1324"
+link = "https://github.com/PHAREHUB/PHARE/pull/1324"
+
+[[rows]]
+feature = "Output"
+status = "yes"
+detail = "HDF5 diagnostics (phareh5) or VTK-HDF (pharevtkhdf, opens in ParaView), and restarts."
+source = "pyphare/pharein/simulation.py diag_options, restart_options"
+
+[[rows]]
+feature = "Installation"
+status = "partial"
+detail = "Build from source with CMake, MPI, parallel HDF5 and SAMRAI (fetched automatically or pre-installed). No pip or conda package yet."
+source = "PHARE/readme.md"

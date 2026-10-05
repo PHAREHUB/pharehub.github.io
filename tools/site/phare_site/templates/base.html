@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{% block title %}PHARE{% endblock %}</title>
+<meta name="description" content="{% block description %}{{ c.site.expansion }}: hybrid particle-in-cell simulations of collisionless plasmas with adaptive mesh refinement.{% endblock %}">
+<link rel="icon" type="image/png" href="static/img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+{% include "phare.css" %}
+{% include "site.css" %}
+</style>
+{% block head %}{% endblock %}
+</head>
+<body class="{{ 'drafts' if drafts }}">
+<header class="site-head">
+  <div class="in">
+    <a class="brand" href="index.html" aria-label="PHARE home"><img src="static/img/logo.jpg" alt="PHARE" width="78" height="34"></a>
+    <nav class="nav" aria-label="Main">
+      {% for f, label in nav[1:] %}<a href="{{ f }}"{% if f == current %} aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}
+      <a href="reports/index.html">Activity</a>
+      <span class="sep"></span>
+      <a class="gh" href="{{ c.site.github }}">GitHub</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+{% block body %}{% endblock %}
+</main>
+<footer class="site-foot">
+  <div class="in">
+    <div><h4>PHARE</h4><p style="margin:0">{{ c.site.expansion }}. Open source under the <a href="{{ c.site.license_url }}">{{ c.site.license }}</a>.</p></div>
+    <div><h4>Use</h4><ul><li><a href="get-started.html">Get started</a></li><li><a href="{{ c.site.docs }}">Documentation</a></li><li><a href="science.html">Science</a></li></ul></div>
+    <div><h4>Contribute</h4><ul><li><a href="contribute.html">How to contribute</a></li><li><a href="{{ c.site.github }}">GitHub</a></li><li><a href="reports/index.html">Weekly activity</a></li></ul></div>
+    <div><h4>Contact</h4><ul><li><span class="mono">{{ c.site.email }}</span></li><li><a href="about.html#cite">Cite PHARE</a></li><li><a href="{{ c.site.youtube }}">YouTube</a></li></ul></div>
+  </div>
+</footer>
+<div id="tip" hidden></div>
+{% block scripts %}{% endblock %}
+</body>
+</html>

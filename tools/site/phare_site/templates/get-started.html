@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Get started with PHARE{% endblock %}
+
+{% block body %}
+<header class="top">
+  <span class="eyebrow">GET STARTED</span>
+  <h1>From source code to your first plot</h1>
+  <p class="sub" style="margin:0;max-width:65ch">PHARE is set up and analysed in Python, and runs in parallel with MPI.
+    The steps below get you from a clone to a magnetic reconnection run and a plot. The
+    <a href="{{ c.site.docs }}">documentation</a> has every option.</p>
+</header>
+
+<section aria-labelledby="steps-h">
+  <header><h2 id="steps-h">Four steps</h2><span class="validate-badge">to validate</span></header>
+  <ol class="steps">
+    <li>
+      <h3>Install the requirements</h3>
+      <p>Git, CMake, make or ninja, C++20 and Fortran compilers, MPI, parallel HDF5, and Python 3 with its development headers.
+        SAMRAI, the AMR library, is downloaded and built for you unless you point CMake to an existing install.</p>
+    </li>
+    <li>
+      <h3>Build PHARE</h3>
+      <pre class="code">git clone https://github.com/PHAREHUB/PHARE
+cd PHARE
+python3 -m pip install -r requirements.txt
+mkdir build &amp;&amp; cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release     # add -DSAMRAI_ROOT=/path/to/samrai to reuse an install
+make -j</pre>
+      <p>Details and options: <a href="{{ c.site.docs }}build.html">Building PHARE</a>.</p>
+    </li>
+    <li>
+      <h3>Run a Harris current sheet</h3>
+      <pre class="code">cd ..    # back to the PHARE root
+export PYTHONPATH=$PWD/build:$PWD/pyphare:$PWD
+mpirun -n 4 python3 tests/functional/harris/harris_2d.py</pre>
+      <p>A 2D reconnection setup with automatic mesh refinement (200 × 100 cells, two levels, 10,000 time steps).
+        At the end it saves plots of B, J, density and pressure in <code>phare_outputs/harris_2d_plots/4/</code>.
+        This file is also a test of the code, so it deletes its raw outputs when it finishes.</p>
+    </li>
+    <li>
+      <h3>Make it your own run and plot it</h3>
+      <p>Copy the <code>config()</code> function of <code>harris_2d.py</code> into your own script and end it with
+        <code>Simulator(config()).run()</code>: the outputs stay in <code>phare_outputs/harris_2d</code>. Then, in Python:</p>
+      <pre class="code">from pyphare.pharesee.run import Run
+
+run = Run("phare_outputs/harris_2d")
+run.GetB(25.0).plot(qty="z", plot_patches=True, filename="bz.png")</pre>
+      <p>Every level and patch of the AMR hierarchy is read for you. How to write a run script:
+        <a href="{{ c.site.docs }}usage/run_from_python.html">running from Python</a> and
+        <a href="{{ c.site.docs }}usage/simulation_inputs.html">simulation inputs</a>. Reading outputs:
+        <a href="{{ c.site.docs }}pharesee/get_data.html">getting data</a>.</p>
+    </li>
+  </ol>
+</section>
+
+<section id="capabilities" aria-labelledby="cap-h">
+  <header><h2 id="cap-h">What PHARE can do today</h2><span class="muted">checked against the code, October 2026</span></header>
+  <div class="tablebox"><table>
+    <thead><tr><th>Feature</th><th>Status</th><th>Details</th></tr></thead>
+    <tbody>
+    {% for r in c.capabilities.rows %}
+      <tr><td><b>{{ r.feature }}</b></td>
+        <td><span class="status {{ r.status }}">{{ {"yes": "available", "partial": "partly", "no": "not yet"}[r.status] }}</span></td>
+        <td>{{ r.detail }}{% if r.link %} <a href="{{ r.link }}">#{{ r.link.rsplit('/', 1)[1] }}</a>{% endif %}{% if r.validate %} <span class="validate-badge">to validate</span>{% endif %}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</section>
+
+<section aria-labelledby="help-h">
+  <header><h2 id="help-h">Stuck?</h2></header>
+  <div class="cards">
+    <div class="card"><h3>Read the docs</h3><p><a href="{{ c.site.docs }}">phare.readthedocs.io</a>: building, inputs, diagnostics and the theory.</p></div>
+    <div class="card"><h3>Open an issue</h3><p>Bugs and questions go to <a href="{{ c.site.github }}/issues/new/choose">GitHub issues</a>, with the bug report or feature request template.</p></div>
+    <div class="card"><h3>Write to us</h3><p><span class="mono">{{ c.site.email }}</span></p></div>
+  </div>
+</section>
+{% endblock %}

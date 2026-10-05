@@ -1,0 +1,33 @@
+# What the team is working on. Taken from open/merged PRs (state on 2026-10-05).
+# validate: the team decides what belongs here and in which words.
+validate = true
+
+[[items]]
+title = "Physical boundary conditions"
+state = "in review"
+pr = 1318
+
+[[items]]
+title = "MHD and hybrid levels in one simulation"
+state = "draft"
+pr = 1309
+
+[[items]]
+title = "Higher-order field refinement for AMR"
+state = "in review"
+pr = 1278
+
+[[items]]
+title = "Prescribed external fields"
+state = "in review"
+pr = 1327
+
+[[items]]
+title = "Multithreading with tiles"
+state = "draft"
+pr = 1324
+
+[[items]]
+title = "Adaptive time step for the MHD solver"
+state = "merged"
+pr = 1231

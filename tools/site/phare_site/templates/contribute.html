@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Contribute to PHARE{% endblock %}
+
+{% block body %}
+<header class="top">
+  <span class="eyebrow">CONTRIBUTE</span>
+  <h1>Help build PHARE</h1>
+  <p class="sub" style="margin:0;max-width:65ch">C++20 for the solver, Python for the interface, MPI for the parallelism.
+    Contributions are welcome, from a bug report to a new solver.</p>
+</header>
+
+<section aria-labelledby="flow-h">
+  <header><h2 id="flow-h">How a change gets in</h2><a href="{{ c.site.github }}/blob/master/CONTRIBUTING.md">CONTRIBUTING.md →</a></header>
+  <ol class="steps">
+    <li><h3>Start with an issue</h3><p>Every change, bug fix or feature, starts as an issue that says why. Use the
+      <a href="{{ c.site.github }}/issues/new/choose">bug report or feature request</a> template.</p></li>
+    <li><h3>One issue, one small pull request</h3><p>A PR references its issue and changes the code for one reason.
+      Over about 500 lines or 10 files, split it.</p></li>
+    <li><h3>Bring tests</h3><p>Unit or functional tests come with the code; if they can't, the PR says why.</p></li>
+    <li><h3>Review and CI</h3><p>A maintainer reviews, and the CI builds and tests the PR (see below).</p></li>
+  </ol>
+</section>
+
+<section aria-labelledby="gfi-h">
+  <header><h2 id="gfi-h">Good first issues</h2><a href="{{ c.site.github }}/labels/good%20first%20issue">all on GitHub →</a></header>
+  {% if c.good_first_issues and c.good_first_issues.issues %}
+  <ul class="items">
+    {% for i in c.good_first_issues.issues %}
+    <li><span class="n"><a href="{{ i.url }}">#{{ i.number }}</a></span><span class="t">{{ i.title }}</span>
+      <span class="meta">{% for l in i.labels %}<span class="chip">{{ l }}</span>{% endfor %}</span></li>
+    {% endfor %}
+  </ul>
+  <p class="muted" style="margin:0;font-size:12.5px">List refreshed {{ c.good_first_issues.fetched_at[:10] }}.</p>
+  {% else %}
+  <p class="empty">No issue is labelled "good first issue" right now; browse the <a href="{{ c.site.github }}/issues">open issues</a>.</p>
+  {% endif %}
+</section>
+
+<div class="grid2">
+  <section aria-labelledby="arch-h">
+    <header><h2 id="arch-h">How the code is organised</h2></header>
+    <div class="arch">
+      <div class="layer c3"><b>pyphare/</b><span>Python package: simulation setup, running, post-processing.</span></div>
+      <div class="down">↓</div>
+      <div class="layer c5"><b>src/python3/</b><span>pybind11 bindings, one module per dimension and interpolation order.</span></div>
+      <div class="down">↓</div>
+      <div class="layer c4"><b>src/simulator/</b><span>Assembles everything and owns the time loop.</span></div>
+      <div class="down">↓</div>
+      <div class="layer c2"><b>src/amr/</b><span>Everything that talks to SAMRAI: patch data, refinement, level messengers, solvers.</span></div>
+      <div class="down">↓</div>
+      <div class="layer c1"><b>src/core/</b><span>Physics and numerics, with no SAMRAI dependency: grid layout, fields, particles, pusher, Faraday, Ampère, Ohm, MHD numerics.</span></div>
+    </div>
+    <p class="muted" style="margin:0;font-size:13px">Lower layers never include upper ones. Most code is header-only C++ templates
+      on dimension and interpolation order.</p>
+  </section>
+  <section aria-labelledby="ci-h">
+    <header><h2 id="ci-h">How the CI checks a PR</h2></header>
+    <div class="cards" style="grid-template-columns: 1fr">
+      <div class="card"><h3>GitHub Actions</h3><p>Builds PHARE and runs the test suite on Ubuntu, plus CodeQL static analysis.</p></div>
+      <div class="card"><h3>TeamCity at LPP</h3><p>Builds every PR with gcc and with clang (with AddressSanitizer), with and without a pre-built SAMRAI, and runs about 1,500 tests. Nightly and weekly jobs on master add performance and coverage runs.</p></div>
+      <div class="card"><h3>Weekly activity</h3><p>Every Monday a report shows the past week's issues, PRs, reviews and CI results: <a href="reports/index.html">activity reports</a>.</p></div>
+    </div>
+  </section>
+</div>
+
+<section aria-labelledby="join-h">
+  <header><h2 id="join-h">Internships, PhDs, postdocs</h2></header>
+  <p style="margin:0;color:var(--ink-2);max-width:65ch">If you would like to work on PHARE in an internship, a PhD or a postdoc, write to
+    <span class="mono">{{ c.site.email }}</span>.</p>
+</section>
+{% endblock %}
