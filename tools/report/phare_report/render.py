@@ -101,7 +101,7 @@ def main():
         if args.fragment and i == len(views) - 1:
             args.fragment.write_text(render_weekly(*args_i, standalone=False))
     rows = [{"name": v["period"]["name"], "start": v["period"]["start"], "last_day": v["period"]["last_day"],
-             **v["headline"]} for v in reversed(views)]
+             "tc_partial": bool(v["teamcity_partial"]), **v["headline"]} for v in reversed(views)]
     (args.out / "index.html").write_text(render_dashboard(env, rows))
     print(f"rendered {len(views)} weekly reports + dashboard -> {args.out}")
 

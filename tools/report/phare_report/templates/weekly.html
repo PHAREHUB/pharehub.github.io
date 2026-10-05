@@ -62,6 +62,7 @@
     <span class="label">{{ k.title }}</span>
     <div class="row"><span class="value">{{ k.value | num }}</span>
       {% if k.delta is not none %}<span class="delta">{{ "▲" if k.delta > 0 else ("▼" if k.delta < 0 else "") }} {{ "%+d" | format(k.delta) if k.delta else "same" }} vs last week</span>{% endif %}</div>
+    {% if k.key == "ci_builds" and v.teamcity_partial %}<span class="delta">TeamCity history incomplete this week</span>{% endif %}
     {{ k.spark | safe }}
   </div>
   {% endfor %}

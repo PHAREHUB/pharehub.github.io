@@ -32,13 +32,21 @@
       <tr>
         <td><a class="mono" href="weekly/{{ r.name }}.html">{{ r.name }}</a></td>
         <td>{{ r.start.strftime("%-d %b") }} – {{ r.last_day.strftime("%-d %b %Y") }}</td>
-        {% for key in ["commits", "prs_merged", "prs_opened", "issues_opened", "issues_closed", "reviews", "ci_builds", "tests_run"] %}
+        {% for key in ["commits", "prs_merged", "prs_opened", "issues_opened", "issues_closed", "reviews"] %}
         <td class="num{{ ' zero' if not r[key] }}">{{ r[key] | num }}</td>
+        {% endfor %}
+        {% for key in ["ci_builds", "tests_run"] %}
+        {% if r.tc_partial and not r[key] %}<td class="num zero" data-tip="TeamCity no longer has the builds of this week">–</td>
+        {% else %}<td class="num{{ ' zero' if not r[key] }}">{{ r[key] | num }}{% if r.tc_partial %}<span class="muted">*</span>{% endif %}</td>{% endif %}
         {% endfor %}
       </tr>
     {% endfor %}
     </tbody>
   </table></div>
+  {% if rows | selectattr("tc_partial") | list %}
+  <p class="muted" style="margin: 0; font-size: 12.5px">* Incomplete: TeamCity keeps only about 200 builds per configuration,
+    so its older builds are gone. GitHub Actions numbers are complete.</p>
+  {% endif %}
 </section>
 {% else %}
 <p class="empty">No report has been generated yet.</p>
