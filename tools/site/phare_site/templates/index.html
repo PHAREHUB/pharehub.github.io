@@ -1,87 +1,49 @@
 {% extends "base.html" %}
-{% block title %}PHARE: hybrid PIC with adaptive mesh refinement{% endblock %}
+{% block title %}PHARE{% endblock %}
 
 {% block body %}
-<section class="hero" aria-label="Introduction">
-  <div class="copy">
-    <span class="eyebrow">{{ c.site.expansion | upper }}</span>
-    <h1>{{ c.site.tagline }}{% if c.site.validate_tagline %} <span class="validate-badge">to validate</span>{% endif %}</h1>
-    <p class="lede">{{ c.site.summary }}</p>
-    <div class="btns">
-      <a class="btn primary" href="get-started.html">Get started</a>
-      <a class="btn" href="{{ c.site.github }}">Code on GitHub</a>
-      <a class="btn" href="about.html#cite">Cite PHARE</a>
-    </div>
+<header class="top intro">
+  <h1>PHARE</h1>
+  <p class="subtitle">{{ c.site.expansion }}</p>
+  <p class="lede">{{ c.site.summary }}</p>
+  <div class="btns">
+    <a class="btn" href="get-started.html">Installation</a>
+    <a class="btn" href="{{ c.site.docs }}">Documentation</a>
+    <a class="btn" href="{{ c.site.github }}">Source code</a>
+    <a class="btn" href="about.html#cite">Citation</a>
   </div>
-  <figure>
-    <img src="{{ c.site.hero_image }}" srcset="static/img/hero-900.jpg 900w, {{ c.site.hero_image }} 1600w"
-         sizes="(max-width: 820px) 100vw, 560px" width="1600" height="1067"
-         alt="Three panels of ion density from a 2D PHARE run: a chain of plasmoids along a current sheet, the refinement patches in a zoomed region, and the zoomed density.">
-    <figcaption>{{ c.site.hero_caption }} <span class="validate-badge">to validate</span></figcaption>
-  </figure>
-</section>
+</header>
+
+<figure class="figure">
+  <img src="{{ c.site.hero_image }}" srcset="static/img/hero-900.jpg 900w, {{ c.site.hero_image }} 1600w"
+       sizes="(max-width: 940px) 100vw, 900px" width="1600" height="1067"
+       alt="Three panels of ion density from a 2D PHARE run: the full domain, the refined patches in a zoomed region, and the density in that region.">
+  <figcaption>{{ c.site.hero_caption }} <span class="validate-badge">to validate</span></figcaption>
+</figure>
 
 <div class="facts" role="list">
   {% for f in c.site.facts %}<div role="listitem"><b>{{ f.value }}</b><span>{{ f.label }}</span></div>{% endfor %}
 </div>
 
-<section aria-labelledby="doors-h">
-  <header><h2 id="doors-h">Where to go next</h2></header>
-  <div class="doors">
-    <a class="door" href="get-started.html">
-      <span class="who">Scientists</span>
-      <h3>Run your first simulation</h3>
-      <p>What PHARE can do today, how to build it, and a first run you can plot in Python.</p>
-      <span class="go">Get started →</span>
-    </a>
-    <a class="door" href="contribute.html">
-      <span class="who">Developers</span>
-      <h3>Contribute to the code</h3>
-      <p>How the code is organised, how a change gets merged, and issues to start with.</p>
-      <span class="go">Contribute →</span>
-    </a>
-    <a class="door" href="about.html">
-      <span class="who">Everyone</span>
-      <h3>Team, papers and contact</h3>
-      <p>Who builds PHARE, who supports it, how to cite it and how to reach us.</p>
-      <span class="go">About &amp; cite →</span>
-    </a>
-  </div>
-</section>
-
-<div class="grid2">
-  <section aria-labelledby="status-h">
-    <header><h2 id="status-h">In progress</h2>{% if c.roadmap.validate %}<span class="validate-badge">to validate</span>{% endif %}</header>
+<div class="grid2 home-cols">
+  <section id="news" aria-labelledby="news-h">
+    <header><h2 id="news-h">News</h2></header>
     <ul class="news">
-      {% for i in c.roadmap["items"] %}
-      <li><span class="status {{ {'merged': 'merged', 'in review': 'review', 'draft': 'draft'}[i.state] }}">{{ i.state }}</span>
-        <span>{{ i.title }} · <a href="{{ c.site.github }}/pull/{{ i.pr }}">#{{ i.pr }}</a></span></li>
+      {% for n in c.news["items"] %}
+      <li><time datetime="{{ n.date }}">{{ n.date }}</time>
+        <span>{% if n.url %}<a href="{{ n.url }}">{{ n.text }}</a>{% else %}{{ n.text }}{% endif %}{% if n.pr %} <a class="pr" href="{{ c.site.github }}/pull/{{ n.pr }}">#{{ n.pr }}</a>{% endif %}</span></li>
       {% endfor %}
     </ul>
   </section>
-  <section aria-labelledby="week-h">
-    <header><h2 id="week-h">Last week</h2>{% if c.latest_week %}<a href="reports/weekly/{{ c.latest_week.name }}.html">full report →</a>{% endif %}</header>
-    {% if c.latest_week %}
-    {% set w = c.latest_week %}
-    <p class="muted" style="margin:0;font-size:13.5px">{{ w.start.strftime("%-d %b") }} – {{ w.last_day.strftime("%-d %b %Y") }}</p>
-    <div class="facts">
-      <div><b>{{ w.commits }}</b><span>commits on master</span></div>
-      <div><b>{{ w.prs_merged }}</b><span>pull requests merged</span></div>
-      <div><b>{{ w.issues_opened }}</b><span>issues opened</span></div>
-      <div><b>{{ w.reviews }}</b><span>reviews</span></div>
-      <div><b>{{ w.tests_run | num }}</b><span>test executions</span></div>
-      <div><b>{{ w.ci_builds | num }}</b><span>CI builds</span></div>
-    </div>
-    {% else %}<p class="empty">No weekly report yet.</p>{% endif %}
+  <section aria-labelledby="wip-h">
+    <header><h2 id="wip-h">Work in progress</h2>{% if c.roadmap.validate %}<span class="validate-badge">to validate</span>{% endif %}</header>
+    <ul class="news">
+      {% for i in c.roadmap["items"] %}
+      <li><span class="status {{ {'in review': 'review', 'draft': 'draft'}[i.state] }}">{{ i.state }}</span>
+        <span>{{ i.title }} <a class="pr" href="{{ c.site.github }}/pull/{{ i.pr }}">#{{ i.pr }}</a></span></li>
+      {% endfor %}
+    </ul>
+    <p class="muted" style="margin:0;font-size:13px">Week-by-week development activity: <a href="reports/index.html">activity reports</a>.</p>
   </section>
 </div>
-
-<section id="news" aria-labelledby="news-h">
-  <header><h2 id="news-h">News</h2></header>
-  <ul class="news">
-    {% for n in c.news["items"] %}
-    <li><time datetime="{{ n.date }}">{{ n.date }}</time><span>{% if n.url %}<a href="{{ n.url }}">{{ n.text }}</a>{% else %}{{ n.text }}{% endif %}</span></li>
-    {% endfor %}
-  </ul>
-</section>
 {% endblock %}

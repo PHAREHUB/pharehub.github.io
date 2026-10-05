@@ -1,19 +1,18 @@
-# Physics setups shipped with PHARE (tests/functional/ in the PHARE repo).
-# "image" is filled once the figure is produced (content/gallery/ keeps the script).
+# Test cases distributed with PHARE (tests/functional/ in the PHARE repo), checked against the scripts.
 
 [[setups]]
-name = "Harris current sheet"
+name = "Harris current sheets"
 model = "hybrid"
 dims = "2D, 3D"
 path = "tests/functional/harris"
-what = "Magnetic reconnection in a Harris current sheet, with automatic refinement."
+what = "Two Harris sheets in a periodic box with localized perturbations; automatic refinement on two levels."
 
 [[setups]]
-name = "Shocks from a magnetic jump"
+name = "Magnetic jump"
 model = "hybrid"
 dims = "1D"
 path = "tests/functional/shock"
-what = "Shocks launched by a large jump in the magnetic field, a Riemann-type setup."
+what = "Shocks launched by a large jump in the magnetic field (Riemann-type initial condition)."
 
 [[setups]]
 name = "Alfvén wave"
@@ -27,32 +26,32 @@ name = "Ion-ion beam instability"
 model = "hybrid"
 dims = "1D"
 path = "tests/functional/ionIonBeam"
-what = "Growth of an electromagnetic instability driven by two ion populations."
+what = "Instability driven by two ion populations, on three levels; the measured growth rate is compared with the expected 0.09."
 
 [[setups]]
-name = "Dispersion relations"
+name = "Noise spectrum"
 model = "hybrid"
 dims = "1D"
 path = "tests/functional/dispersion"
-what = "Waves excited by noise, compared with the expected dispersion relation."
+what = "Waves grown from particle noise, for dispersion analysis."
 
 [[setups]]
 name = "Orszag-Tang vortex"
 model = "MHD"
 dims = "2D, 3D"
 path = "tests/functional/mhd_orszagtang"
-what = "The classic MHD turbulence benchmark."
+what = "Standard MHD test problem (Orszag and Tang 1979)."
 
 [[setups]]
 name = "MHD rotor"
 model = "MHD"
 dims = "2D"
 path = "tests/functional/mhd_rotor"
-what = "A rotating dense disc launching torsional Alfvén waves."
+what = "Rotating dense disc in a uniform medium."
 
 [[setups]]
 name = "MHD shock tube"
 model = "MHD"
 dims = "1D"
 path = "tests/functional/mhd_shock"
-what = "Riemann problem testing the shock-capturing scheme."
+what = "One-dimensional Riemann problem."

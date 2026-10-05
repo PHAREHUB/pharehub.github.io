@@ -7,6 +7,7 @@ Offline and deterministic: the same inputs give the same pages.
 """
 
 import argparse
+import re
 from pathlib import Path
 
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PackageLoader, select_autoescape
@@ -15,11 +16,11 @@ from . import content
 
 PAGES = [  # (file, nav label, template)
     ("index.html", "Home", "index.html"),
-    ("get-started.html", "Get started", "get-started.html"),
-    ("science.html", "Science", "science.html"),
+    ("get-started.html", "Installation", "get-started.html"),
+    ("science.html", "Test cases", "science.html"),
     ("model.html", "Model", "model.html"),
-    ("contribute.html", "Contribute", "contribute.html"),
-    ("about.html", "About & cite", "about.html"),
+    ("contribute.html", "Contributing", "contribute.html"),
+    ("about.html", "Team and citation", "about.html"),
 ]
 
 # old URLs kept alive
@@ -27,6 +28,27 @@ REDIRECTS = {
     "amrhybrid.html": "model.html",
     "firstrun2grids.html": "model.html#first-run",
 }
+
+
+def slug(text):
+    return re.sub(r"[^a-z0-9]+", "-", re.sub(r"<[^>]+>", "", text).lower()).strip("-")
+
+
+def prepare_document(body):
+    """Give every h2/h3 an id, collect them into a table of contents, drop inline styles and empty paragraphs."""
+    toc = []
+
+    def heading(m):
+        level, attrs, inner = m[1], m[2] or "", m[3]
+        hid = (re.search(r'id="([^"]+)"', attrs) or [None, slug(inner)])[1]
+        if level in "23":
+            toc.append({"level": int(level), "id": hid, "title": re.sub(r"<[^>]+>", "", inner).strip()})
+        return f'<h{level} id="{hid}">{inner}</h{level}>'
+
+    body = re.sub(r"<h([234])(\s[^>]*)?>(.*?)</h\1>", heading, body, flags=re.S)
+    body = re.sub(r'\s+style="[^"]*"', "", body)
+    body = re.sub(r"<p>\s*</p>", "", body)
+    return toc, body
 
 
 def environment(root):
@@ -40,6 +62,7 @@ def environment(root):
 def build(root, drafts=False):
     root = Path(root)
     c = content.load(root)
+    c["model_toc"], c["model_body"] = prepare_document(c["model_body"])
     env = environment(root)
     nav = [(f, label) for f, label, _ in PAGES]
     written = []

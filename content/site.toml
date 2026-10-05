@@ -1,15 +1,13 @@
 # Site-wide facts. Every claim cites where it comes from; "validate" marks text the team must check.
 
 name = "PHARE"
-expansion = "Parallel Hybrid particle-in-cell code with Adaptive mesh REfinement"
-# source: PHARE/readme.md
-summary = """PHARE is a hybrid particle-in-cell code: it follows any number of ion populations \
-as particles (Vlasov equation) and models electrons as a single fluid whose momentum equation \
-gives the electric field. Patch-based adaptive mesh refinement, from the SAMRAI library, \
-increases the resolution only where the solution needs it, to bridge sub-ion scales and \
-large MHD scales."""
-tagline = "Kinetic ions where it matters, at the scale of whole systems."
-validate_tagline = true
+expansion = "Parallel hybrid particle-in-cell code with adaptive mesh refinement"
+# sources: PHARE/readme.md, pyphare/pharein/electron_model.py, src/amr/tagging/, possibleSimulators()
+summary = """PHARE is an open-source hybrid particle-in-cell code for collisionless plasmas. \
+Ions are followed as macro-particles; electrons are a massless, isothermal fluid whose momentum \
+equation gives the electric field. Patch-based adaptive mesh refinement (SAMRAI) refines the grid \
+in user-defined boxes or where the magnetic field varies sharply. PHARE runs in 1D, 2D and 3D \
+with MPI and is driven from Python."""
 
 github = "https://github.com/PHAREHUB/PHARE"
 docs = "https://phare.readthedocs.io/en/latest/"
@@ -21,28 +19,24 @@ paper_doi = "https://doi.org/10.1016/j.cpc.2023.108966"
 paper_arxiv = "https://arxiv.org/abs/2210.14580"
 
 hero_image = "static/img/hero.jpg"
-# validate: exact setup of this run (from the PHARE readme image)
-hero_caption = """Ion density in a 2D current-sheet simulation at t = 424.66 (in ion units): \
-a chain of plasmoids along the sheet. Top: the full domain. Middle: the AMR patches \
-in the boxed region. Bottom: zoom on the density in that region."""
+# validate: run setup and time unit (image from the PHARE readme)
+hero_caption = """Ion density in a 2D PHARE simulation at t = 424.66, in units of the inverse ion cyclotron frequency. Top: full domain. \
+Middle: boundaries of the refined patches in the boxed region. Bottom: density in that region."""
 
-# Key facts strip. source: src/core/utilities/meta/meta_utilities.hpp (possibleSimulators),
-# src/amr/wrappers/hierarchy.hpp:380 (ratio 2), pyphare/pharein/load_balancer.py, readme.md
+# Key facts. sources: possibleSimulators(), src/amr/wrappers/hierarchy.hpp:380,
+# pyphare/pharein/load_balancer.py + initialize/general.py:74 (inactive by default), LICENCE.TXT
 [[facts]]
 value = "1D · 2D · 3D"
-label = "dimensions"
+label = "interpolation orders 1 to 3"
 [[facts]]
 value = "AMR"
-label = "patch-based, refinement ratio 2"
+label = "patch-based (SAMRAI), refinement ratio 2"
 [[facts]]
 value = "MPI"
-label = "with dynamic load balancing"
+label = "optional dynamic load balancing"
 [[facts]]
 value = "Python"
-label = "to set up runs and analyse them"
+label = "input scripts and post-processing"
 [[facts]]
 value = "GPLv3"
-label = "open source"
-[[facts]]
-value = "CPC 2024"
-label = "peer-reviewed method paper"
+label = "licence"

@@ -1,37 +1,29 @@
 {% extends "base.html" %}
-{% block title %}The PHARE model{% endblock %}
+{% block title %}Model and numerical methods · PHARE{% endblock %}
 
 {% block head %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
 <script>
-window.MathJax = { tex: { tags: "ams" } };
+window.MathJax = { tex: { tags: "ams" }, svg: { fontCache: "global" } };
 </script>
-<script id="MathJax-script" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
+<script id="MathJax-script" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
 {% endblock %}
 
 {% block body %}
 <header class="top">
-  <span class="eyebrow">THE MODEL</span>
-  <h1>From the hybrid equations to the AMR algorithms</h1>
-  <nav class="toc" aria-label="On this page">
-    <a href="#ionequations">Ion equations</a><a href="#electronmomentum">Electron momentum</a><a href="#EM">Fields and Ohm's law</a>
-    <a href="#amr">Mesh refinement</a><a href="#first-run">First run, 2020</a>
-  </nav>
+  <h1>Model and numerical methods</h1>
+  <p class="sub" style="margin:0;max-width:68ch">The hybrid equations solved by PHARE, their discretisation, and the
+    adaptive mesh refinement algorithms. A complete description is given in the
+    <a href="{{ c.site.paper_doi }}">method paper</a>.</p>
 </header>
 
-<aside class="panel" aria-labelledby="cmp-h">
-  <h3 id="cmp-h">Where hybrid sits <span class="validate-badge">to validate</span></h3>
-  <div class="tablebox" style="border:0"><table>
-    <thead><tr><th></th><th>MHD</th><th>Hybrid (PHARE)</th><th>Fully kinetic PIC</th></tr></thead>
-    <tbody>
-      <tr><td>Ions</td><td>fluid</td><td>particles</td><td>particles</td></tr>
-      <tr><td>Electrons</td><td>fluid (with ions)</td><td>fluid</td><td>particles</td></tr>
-      <tr><td>Smallest scales resolved</td><td>none built in</td><td>ion inertial length and gyroradius</td><td>electron scales, Debye length</td></tr>
-      <tr><td>Typical use</td><td>global, system scales</td><td>ion kinetics in large domains</td><td>electron physics in small domains</td></tr>
-    </tbody>
-  </table></div>
-</aside>
-
-<article class="prose">
+<div class="doc">
+  <nav class="doc-toc" aria-label="Contents">
+    <span class="ttl">Contents</span>
+    {% for h in c.model_toc %}<a class="l{{ h.level }}" href="#{{ h.id }}">{{ h.title }}</a>{% endfor %}
+  </nav>
+  <article class="doc-body">
 {{ c.model_body | safe }}
-</article>
+  </article>
+</div>
 {% endblock %}

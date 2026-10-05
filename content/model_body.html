@@ -1,6 +1,7 @@
 <!-- Ported verbatim from the 2020 amrhybrid.html (lines 107-508). -->
+<h2 id="hybrid">The hybrid model</h2>
 
-<p>The Hybrid formalism consists in modeling the plasma as a combination of constituants treated with a
+<p>The Hybrid formalism consists in modeling the plasma as a combination of constituents treated with a
  different physical models. This usually means that ions and electrons are treated differently.
  A rather complete description of the different ways a code can be "hybrid" is given in <a href="https://www.springer.com/gp/book/9783540417347">The Hybrid Multiscale Simulation Technology</a> by A.S. Lipatov.
  <br/>
@@ -47,6 +48,7 @@ This is done by solving the Vlasov equation for all ion populations when collisi
                               <p>
                                 \begin{equation}
                                 m_en_e \frac{d\mathbf{u_e}}{dt} = -\nabla\cdot \mathbf{P_e} - e n_e(\mathbf{E} + \mathbf{u_e}\times\mathbf{B})
+                                \label{eq:electronmomentum}
                                 \end{equation}
                               </p>
 
@@ -61,7 +63,7 @@ This is done by solving the Vlasov equation for all ion populations when collisi
 <p>
     \begin{equation}
     \frac{\partial \mathbf{B}}{\partial t} = -\nabla\times\mathbf{E}
-    \label{eq:electronmomentum}
+    \label{eq:faraday}
     \end{equation}
 </p>
 
@@ -141,7 +143,7 @@ is given by the product of the density by some scalar constant that we call "the
 
 <h4 id="dissipation">Dissipative terms</h4>
 <p>Solved as is, \ref{eq:ohmelectron3} and \ref{eq:isothermal} would result in current sheets to collapse at grid scale in the 
-absence of an intrinsic dissipation scale in the system. Too ways are typically employed in Hybrid codes to include such a dissipation.
+absence of an intrinsic dissipation scale in the system. Two ways are typically employed in Hybrid codes to include such a dissipation.
 
 Joule resistivity well known to be used already in MHD codes. It is a simple term \(\eta \mathbf{j}\) to add on the right hand side of equation \ref{eq:ohmelectron3}. This term adds diffusion of magnetic flux. However there is no scale at which this terms dominate over the 
 electron ideal term \(-\mathbf{u_e}\times\mathbf{B}\), unless \(\eta\) is so large that ion scale structures are diffused away too.
@@ -178,7 +180,7 @@ PHARE include these two terms and eq. \ref{eq:ohmelectron3} that is solved in PH
 
     <p>There are two ways to solve equations \ref{eq:vlasov} for ion populations. It can be solved calculating
     eulerian derivatives, i.e. discretizing velocity and spatial dimensions and solving the equation at those fixed location.
-    This is called a "Vlasoc Hybrid code". It is generally complex and require lots of computational resources.
+    This is called a "Vlasov hybrid code". It is generally complex and require lots of computational resources.
     The other way consists in adopting a Lagrangian standpoint. That is, cutting the initial
      distribution function in N weighted bins and follow the dynamic
     of those chunks in phase space. The little pieces of distributions are called "macro-particles".
@@ -207,8 +209,8 @@ PHARE include these two terms and eq. \ref{eq:ohmelectron3} that is solved in PH
      $$
     S_1(x) = \left\{
         \begin{array}{ll}
-            1-|x| & \mbox{si } |x|\le 1 \\
-            0& \mbox{sinon.}
+            1-|x| & \mbox{if } |x|\le 1 \\
+            0& \mbox{otherwise.}
         \end{array}
     \right.
     $$
@@ -218,9 +220,9 @@ PHARE include these two terms and eq. \ref{eq:ohmelectron3} that is solved in PH
      $$
     S_2(x) = \left\{
         \begin{array}{ll}
-            3/4-x^2 & \mbox{si } |x|\le 1/2 \\
-            1/2(3/2-|x|)^2  & \mbox{si } 1/2 \lt |x| \le 3/2 \\
-            0 & \mbox{si } |x| \gt 3/2
+            3/4-x^2 & \mbox{if } |x|\le 1/2 \\
+            1/2(3/2-|x|)^2  & \mbox{if } 1/2 \lt |x| \le 3/2 \\
+            0 & \mbox{if } |x| \gt 3/2
         \end{array}
     \right.
     $$
@@ -231,9 +233,9 @@ PHARE include these two terms and eq. \ref{eq:ohmelectron3} that is solved in PH
      $$
     S_3(x) = \left\{
         \begin{array}{ll}
-            1/2|x|^3 -x^2 + 2/3& \mbox{si } |x|\le 1 \\
-            4/3 (1 - 1/2|x|)^2  & \mbox{si } 1 \lt |x| \le 2 \\
-            0 & \mbox{si } |x| \gt 2
+            1/2|x|^3 -x^2 + 2/3& \mbox{if } |x|\le 1 \\
+            4/3 (1 - 1/2|x|)^2  & \mbox{if } 1 \lt |x| \le 2 \\
+            0 & \mbox{if } |x| \gt 2
         \end{array}
     \right.
     $$
@@ -265,7 +267,7 @@ The discretization that is concretely implemented is the one commonly known as t
 ------------------------------------------------------------>
 
 <h3>Time integration</h3>
-<p>The time evolution of Hybrid equations in PHARE is an asbtract object, which allows to isolate any concrete implementation. The current implementation is a predictor-predictor-corrector scheme, also used in <a href="https://doi.org/10.1016/j.jcp.2013.11.035">Kunz et al. 2014</a>. Knowing the magnetic field \(\mathbf{B}^n\) and electric field \(\mathbf{E}^n\) at time \(t=n\), we compute a first
+<p>The time evolution of Hybrid equations in PHARE is an abstract object, which allows to isolate any concrete implementation. The current implementation is a predictor-predictor-corrector scheme, also used in <a href="https://doi.org/10.1016/j.jcp.2013.11.035">Kunz et al. 2014</a>. Knowing the magnetic field \(\mathbf{B}^n\) and electric field \(\mathbf{E}^n\) at time \(t=n\), we compute a first
 prediction of the magnetic field at \(t=n+1\), called \(\mathbf{B}_{p1}^{n+1}\).</p>
 
 <p>
@@ -402,43 +404,56 @@ From which we can again take the time centered average : <br/>
 
 </p>
 
-<h2 id="amr">Adaptive Mesh Refinement</h2>
-<!-- validate: drafted from the code on 2026-10-05; sources in comments -->
+<h2 id="amr">Adaptive mesh refinement</h2>
+<!-- validate: drafted from the code on 2026-10-05, corrected after review; sources in comments -->
 <p class="validate">Draft, to be validated by the team.</p>
 
-<h3 id="patches">Patches and levels</h3>
-<!-- source: src/amr/wrappers/hierarchy.hpp:380 "constexpr int ratio = 2; // Nothing else supported" -->
-<p>The mesh is a hierarchy of levels, each made of rectangular patches handled by the
-<a href="https://github.com/llnl/samrai">SAMRAI</a> library. Each level is twice as fine as the one below it:
-the refinement ratio is 2 in every direction.</p>
-
-<h3 id="time-stepping">Refined time stepping</h3>
-<!-- source: SAMRAI TimeRefinementIntegrator used in src/amr/wrappers/integrator.hpp -->
-<p>A finer level advances with a smaller time step than its parent, and the levels are synchronised
-when they reach the same time.</p>
+<h3 id="patches">Patches, levels and time steps</h3>
+<!-- sources: src/amr/wrappers/hierarchy.hpp:380 (ratio 2);
+     src/amr/multiphysics_integrator.hpp getMaxFinerLevelDt (dt / ratio^2, whistler constraint) -->
+<p>The mesh is a hierarchy of levels, each a union of rectangular patches managed by
+<a href="https://github.com/llnl/samrai">SAMRAI</a>. The refinement ratio between two levels is 2 in every direction.
+Because the whistler dispersion relation requires \(\Delta t \propto \Delta x^2\), a level advances with one quarter
+of its parent's time step: it takes four sub-steps per parent step and is then synchronised with its parent.</p>
 
 <h3 id="field-refinement">Field refinement</h3>
-<!-- source: src/amr/data/field/refine/magnetic_field_refiner.hpp:43-47 (Fujimoto et al. 2011) -->
-<p>When a fine level is created or its ghost cells are filled from the coarser level, the magnetic field
-is refined so that its divergence stays zero: the field on a coarse face is copied onto the 2 (1D) or
-4 (2D, 3D) fine faces that cover it, so the magnetic flux through the coarse face equals the sum of the
-fluxes through the fine faces
-(<a href="https://doi.org/10.1016/j.jcp.2011.08.002">Fujimoto et al. 2011</a>).</p>
+<!-- sources: src/amr/data/field/refine/magnetic_field_refiner.hpp (flux-preserving copy, Fujimoto et al. 2011);
+     src/amr/data/field/refine/magnetic_refine_patch_strategy.hpp (interior faces, Toth and Roe 2002); PR #1278 -->
+<p>The magnetic field is refined so that its divergence remains zero. The fine faces that lie on a coarse face take
+the coarse value (one fine face in 1D, two in 2D, four in 3D), which preserves the magnetic flux through the coarse
+face (<a href="https://doi.org/10.1016/j.jcp.2011.08.002">Fujimoto et al. 2011</a>). The fine faces inside a coarse
+cell are then computed with the divergence-free interpolation of
+<a href="https://doi.org/10.1006/jcph.2002.7055">Tóth and Roe (2002)</a>. Interpolation at level boundaries is
+currently low order; higher-order refinement is in review
+(<a href="https://github.com/PHAREHUB/PHARE/pull/1278">#1278</a>).</p>
 
 <h3 id="splitting">Particle splitting</h3>
-<!-- source: PHARE/readme.md, Smets et al. 2021 -->
-<p>A macro-particle entering a finer level is split into several lighter particles, placed so that
-the moments and the fields seen by the fine level stay consistent with the coarse one
-(<a href="https://doi.org/10.1016/j.cpc.2020.107666">Smets et al. 2021</a>).</p>
+<!-- sources: src/amr/data/particles/refine/splitter.hpp; pyphare/pharein/simulation.py refined_particle_nbr; Smets et al. 2021 -->
+<p>A macro-particle entering a finer level is replaced by several particles placed at fixed offsets around it,
+with the parent's velocity and a share of its weight. The number of particles per split is set by
+<code>refined_particle_nbr</code>; the positions and weights are those of
+<a href="https://doi.org/10.1016/j.cpc.2020.107666">Smets et al. (2021)</a>.</p>
 
-<h3 id="tagging">Where to refine</h3>
-<!-- source: src/amr/tagging/default_tagger_strategy.hpp:28,97; pyphare/pharein/simulation.py:799 -->
-<p>Refinement is either fixed by the user (refinement boxes per level) or automatic. In automatic mode
-a cell is tagged for refinement when the relative jump of the magnetic field between neighbouring cells,
-\( |B_{i+1}-B_i| / (1+|B_i|) \), exceeds a threshold (0.1 by default). Tagged cells are grouped into
-new patches at the next regridding.</p>
+<h3 id="tagging">Refinement criterion</h3>
+<!-- sources: src/amr/tagging/default_tagger_strategy.hpp:28 (threshold 0.1), :94-112 (1D), :115-185 (2D/3D) -->
+<p>Levels are either given by the user as fixed boxes or created automatically. In automatic mode, in 2D and 3D,
+a cell is tagged when, for some component of \(\mathbf{B}\) and some direction,
+\( |B_{i+2}-B_i| \,/\, (1+|B_{i+1}-B_i|) \) exceeds a threshold (0.1 by default). In 1D the criterion uses
+smoothed \(B_y\) and \(B_z\). Tagged cells are grouped into new patches when the hierarchy is regridded.</p>
 
-<h2 id="first-run">First run on two grids (May 2020)</h2>
+<h2 id="comparison">Comparison with MHD and fully kinetic models</h2>
+<p class="validate">Draft, to be validated by the team.</p>
+<div class="tablebox"><table>
+  <thead><tr><th></th><th>MHD</th><th>Hybrid (PHARE)</th><th>Fully kinetic PIC</th></tr></thead>
+  <tbody>
+    <tr><td>Ions</td><td>single fluid with the electrons</td><td>macro-particles</td><td>macro-particles</td></tr>
+    <tr><td>Electrons</td><td>single fluid with the ions</td><td>massless fluid</td><td>macro-particles</td></tr>
+    <tr><td>Kinetic scales in the model</td><td>none</td><td>ion scales (\(d_i\), \(\rho_i\)); no electron inertia</td><td>ion and electron scales (\(d_e\), \(\rho_e\), \(\lambda_D\))</td></tr>
+    <tr><td>Grid-scale dissipation</td><td>numerical or explicit resistivity</td><td>hyper-resistivity; \(\Delta t \propto \Delta x^2\) (whistler)</td><td>none required</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="first-run">First run on two levels (May 2020)</h2>
 <p>The first PHARE run with two levels: an Alfvén wave in 1D crossing a fixed refined patch.
 The curves of \(B_y\) and \(B_z\) from the coarse level (lines) and the refined patch (dots) overlap.</p>
 <video controls preload="metadata" playsinline width="720" height="432" src="static/video/first_run_2grids.mp4"></video>

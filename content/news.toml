@@ -1,9 +1,29 @@
-# Newest first. Sources: this repo's history, PHARE/readme.md, the 2020 site's news list.
+# Newest first. Feature milestones: date = merge into master (GitHub mergedAt, UTC), checked 2026-10-05.
 
 [[items]]
-date = "2026-10-05"
-text = "Weekly activity reports are now published: issues, pull requests, reviews, CI and tests, week by week."
-url = "reports/index.html"
+date = "2026-09-30"
+text = "Adaptive time stepping for the MHD solver."
+pr = 1231
+
+[[items]]
+date = "2026-06-13"
+text = "A standalone finite-volume MHD solver, configured from Python, with 1D, 2D and 3D test cases."
+pr = 1218
+
+[[items]]
+date = "2026-04-07"
+text = "3D hybrid simulations, including 3D particle splitting for refined levels."
+pr = 1158
+
+[[items]]
+date = "2026-02-17"
+text = "VTK-HDF output, readable directly by ParaView."
+pr = 1141
+
+[[items]]
+date = "2024-07-22"
+text = "Optional dynamic load balancing across MPI ranks."
+pr = 807
 
 [[items]]
 date = "2024"
@@ -11,15 +31,45 @@ text = "The PHARE method paper is published in Computer Physics Communications."
 url = "https://doi.org/10.1016/j.cpc.2023.108966"
 
 [[items]]
+date = "2022-06-21"
+text = "Automatic refinement in 2D."
+pr = 678
+
+[[items]]
+date = "2022-03-07"
+text = "Checkpoint and restart."
+pr = 649
+
+[[items]]
+date = "2021-07-07"
+text = "2D hybrid simulations with mesh refinement."
+pr = 551
+
+[[items]]
+date = "2021-01-15"
+text = "Automatic refinement in 1D: cells are tagged where the magnetic field varies sharply."
+pr = 399
+
+[[items]]
 date = "2020-11-20"
 text = "First 1D run with self-consistent refinement."
 
 [[items]]
 date = "2020-11-07"
-text = "Our paper on particle splitting is published in Computer Physics Communications."
+text = "Smets et al., on particle splitting for refined levels, is published in Computer Physics Communications."
 url = "https://doi.org/10.1016/j.cpc.2020.107666"
 
 [[items]]
+date = "2020-07-16"
+text = "Simulations can be initialised and advanced from Python."
+pr = 286
+
+[[items]]
 date = "2020-05-29"
-text = "First 1D run on two fixed grids: an Alfvén wave crossing a refined patch."
+text = "First 1D run on two levels: an Alfvén wave crossing a fixed refined patch."
 url = "model.html#first-run"
+
+[[items]]
+date = "2019-12-04"
+text = "HDF5 diagnostics for electromagnetic fields, ion moments and particles."
+pr = 69

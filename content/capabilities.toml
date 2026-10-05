@@ -4,8 +4,8 @@
 [[rows]]
 feature = "Dimensions"
 status = "yes"
-detail = "1D, 2D and 3D."
-source = "src/core/utilities/meta/meta_utilities.hpp, possibleSimulators()"
+detail = "1D, 2D and 3D. 3D hybrid runs were added in April 2026; there is no 3D functional test in the test suite yet."
+source = "possibleSimulators(); PR #1158; tests/functional/harris/CMakeLists.txt registers harris_2d only"
 
 [[rows]]
 feature = "Particle shape"
@@ -16,20 +16,27 @@ source = "possibleSimulators()"
 [[rows]]
 feature = "Ion populations"
 status = "yes"
-detail = "Any number of populations, each with its own charge, mass and initial distribution (Maxwellian fluid model)."
+detail = "Any number of populations, each initialised as a drifting Maxwellian whose density, bulk velocity and thermal speeds are Python functions."
 source = "pyphare/pharein/maxwellian_fluid_model.py"
 
 [[rows]]
 feature = "Electrons"
-status = "yes"
-detail = "Single fluid with an isothermal closure."
-source = "pyphare/pharein/electron_model.py"
+status = "partial"
+detail = "Massless fluid with an isothermal closure (uniform Te). Ohm's law includes resistivity and hyper-resistivity, the latter on by default (1e-4, constant or spatially varying)."
+source = "pyphare/pharein/electron_model.py; simulation.py check_hyper_resistivity()"
 
 [[rows]]
 feature = "Mesh refinement"
 status = "yes"
-detail = "Fixed refinement boxes, or automatic tagging on magnetic field gradients. Refinement ratio 2."
-source = "src/amr/tagging/default_tagger_strategy.hpp, src/amr/wrappers/hierarchy.hpp:380"
+detail = "Refinement ratio 2. Levels defined by fixed boxes, or by automatic tagging on magnetic field variations. Each finer level takes four sub-steps per parent step."
+source = "hierarchy.hpp:380; default_tagger_strategy.hpp; multiphysics_integrator.hpp getMaxFinerLevelDt"
+
+[[rows]]
+feature = "Coarse-fine interpolation"
+status = "partial"
+detail = "Low order at level boundaries; higher-order field refinement is in review."
+source = "PR #1278"
+link = "https://github.com/PHAREHUB/PHARE/pull/1278"
 
 [[rows]]
 feature = "Boundary conditions"
@@ -41,26 +48,26 @@ link = "https://github.com/PHAREHUB/PHARE/pull/1318"
 [[rows]]
 feature = "MHD"
 status = "partial"
-detail = "An MHD solver (Riemann solvers, reconstructions, constrained transport). Coupling MHD and hybrid levels in one run is in progress."
-source = "src/core/numerics (MHD), src/amr/solvers/solver_mhd.hpp; PR #1309"
+detail = "A standalone finite-volume MHD solver (ideal or Hall) with constrained transport and adaptive time stepping. The default build mostly uses the Rusanov flux; other Riemann solvers need a custom build. MHD and hybrid levels in one run: in development."
+source = "src/amr/solvers/solver_mhd.hpp; res/sim/all.txt; simulation.py 'hall'; PR #1309"
 link = "https://github.com/PHAREHUB/PHARE/pull/1309"
 validate = true
 
 [[rows]]
 feature = "Parallelism"
 status = "yes"
-detail = "MPI, with load balancing by particle count or by cell count. Multithreading is in progress."
-source = "pyphare/pharein/load_balancer.py; PR #1324"
+detail = "MPI. Optional dynamic load balancing by particle count or by cell count. Multithreading is in development."
+source = "pyphare/pharein/load_balancer.py; initialize/general.py:74; PR #1324"
 link = "https://github.com/PHAREHUB/PHARE/pull/1324"
 
 [[rows]]
 feature = "Output"
 status = "yes"
-detail = "HDF5 diagnostics (phareh5) or VTK-HDF (pharevtkhdf, opens in ParaView), and restarts."
+detail = "HDF5 diagnostics (phareh5) or VTK-HDF (pharevtkhdf, readable by ParaView); checkpoint and restart."
 source = "pyphare/pharein/simulation.py diag_options, restart_options"
 
 [[rows]]
 feature = "Installation"
 status = "partial"
-detail = "Build from source with CMake, MPI, parallel HDF5 and SAMRAI (fetched automatically or pre-installed). No pip or conda package yet."
-source = "PHARE/readme.md"
+detail = "Build from source: CMake, MPI, parallel HDF5, Python 3.11 or later; SAMRAI is fetched or reused. No binary package."
+source = "PHARE/readme.md; CMakeLists.txt:24"
