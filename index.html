@@ -248,7 +248,6 @@ figure img { width: 100%; height: auto; border-radius: 4px; display: block; back
 figcaption { font-size: 13px; color: var(--ink-2); line-height: 1.5; max-width: 90ch; }
 ul.plain { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; color: var(--ink-2); font-size: 14.5px; }
 ul.plain b { color: var(--ink); font-weight: 600; }
-a.pr { font: 12.5px var(--mono); color: var(--muted); }
 .home-cols { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
 .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--line);
   border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
@@ -388,51 +387,59 @@ body:not(.drafts) .validate, body:not(.drafts) .validate-badge { display: none; 
   <section id="news" aria-labelledby="news-h">
     <header><h2 id="news-h">News</h2></header>
     <ul class="news">
+      <li><time datetime="2026-10-22">2026-10-22</time>
+        <span><a href="https://github.com/PHAREHUB/PHARE/pull/1318">MHD open, reflecting and inflow boundaries</a></span></li>
+      <li><time datetime="2026-10-16">2026-10-16</time>
+        <span><a href="https://github.com/PHAREHUB/PHARE/pull/1369">Particle splitting corrected to Smets et al. (2021); refined 2D results change</a></span></li>
+      <li><time datetime="2026-10-12">2026-10-12</time>
+        <span><a href="https://github.com/PHAREHUB/PHARE/pull/1278">Second-order mesh refinement in space and time, divergence-free B</a></span></li>
       <li><time datetime="2026-09-30">2026-09-30</time>
-        <span>Adaptive time stepping for the MHD solver. <a class="pr" href="https://github.com/PHAREHUB/PHARE/pull/1231">#1231</a></span></li>
+        <span><a href="https://github.com/PHAREHUB/PHARE/pull/1231">MHD adaptive time stepping</a></span></li>
       <li><time datetime="2026-06-13">2026-06-13</time>
-        <span>A standalone finite-volume MHD solver, configured from Python, with 1D, 2D and 3D test cases. <a class="pr" href="https://github.com/PHAREHUB/PHARE/pull/1218">#1218</a></span></li>
+        <span><a href="https://github.com/PHAREHUB/PHARE/pull/1218">Finite-volume MHD solver, 1D, 2D and 3D</a></span></li>
       <li><time datetime="2026-04-07">2026-04-07</time>
-        <span>3D hybrid simulations, including 3D particle splitting for refined levels. <a class="pr" href="https://github.com/PHAREHUB/PHARE/pull/1158">#1158</a></span></li>
+        <span><a href="https://github.com/PHAREHUB/PHARE/pull/1158">3D hybrid runs with mesh refinement</a></span></li>
       <li><time datetime="2026-02-17">2026-02-17</time>
-        <span>VTK-HDF output, readable directly by ParaView. <a class="pr" href="https://github.com/PHAREHUB/PHARE/pull/1141">#1141</a></span></li>
+        <span><a href="https://github.com/PHAREHUB/PHARE/pull/1141">VTK-HDF output, readable by ParaView</a></span></li>
       <li><time datetime="2024-07-22">2024-07-22</time>
-        <span>Optional dynamic load balancing across MPI ranks. <a class="pr" href="https://github.com/PHAREHUB/PHARE/pull/807">#807</a></span></li>
+        <span><a href="https://github.com/PHAREHUB/PHARE/pull/807">Dynamic load balancing across MPI ranks</a></span></li>
       <li><time datetime="2024">2024</time>
-        <span><a href="https://doi.org/10.1016/j.cpc.2023.108966">The PHARE method paper is published in Computer Physics Communications.</a></span></li>
+        <span><a href="https://doi.org/10.1016/j.cpc.2023.108966">PHARE method paper, Computer Physics Communications</a></span></li>
       <li><time datetime="2022-06-21">2022-06-21</time>
-        <span>Automatic refinement in 2D. <a class="pr" href="https://github.com/PHAREHUB/PHARE/pull/678">#678</a></span></li>
+        <span><a href="https://github.com/PHAREHUB/PHARE/pull/678">2D automatic refinement</a></span></li>
       <li><time datetime="2022-03-07">2022-03-07</time>
-        <span>Checkpoint and restart. <a class="pr" href="https://github.com/PHAREHUB/PHARE/pull/649">#649</a></span></li>
+        <span><a href="https://github.com/PHAREHUB/PHARE/pull/649">Checkpoint and restart</a></span></li>
       <li><time datetime="2021-07-07">2021-07-07</time>
-        <span>2D hybrid simulations with mesh refinement. <a class="pr" href="https://github.com/PHAREHUB/PHARE/pull/551">#551</a></span></li>
+        <span><a href="https://github.com/PHAREHUB/PHARE/pull/551">2D hybrid runs with mesh refinement</a></span></li>
       <li><time datetime="2021-01-15">2021-01-15</time>
-        <span>Automatic refinement in 1D: cells are tagged where the magnetic field varies sharply. <a class="pr" href="https://github.com/PHAREHUB/PHARE/pull/399">#399</a></span></li>
+        <span><a href="https://github.com/PHAREHUB/PHARE/pull/399">1D automatic refinement on magnetic field gradients</a></span></li>
       <li><time datetime="2020-11-20">2020-11-20</time>
-        <span>First 1D run with self-consistent refinement.</span></li>
+        <span>First 1D run with self-consistent refinement</span></li>
       <li><time datetime="2020-11-07">2020-11-07</time>
-        <span><a href="https://doi.org/10.1016/j.cpc.2020.107666">Smets et al., on particle splitting for refined levels, is published in Computer Physics Communications.</a></span></li>
+        <span><a href="https://doi.org/10.1016/j.cpc.2020.107666">Particle splitting paper (Smets et al.), Computer Physics Communications</a></span></li>
       <li><time datetime="2020-07-16">2020-07-16</time>
-        <span>Simulations can be initialised and advanced from Python. <a class="pr" href="https://github.com/PHAREHUB/PHARE/pull/286">#286</a></span></li>
+        <span><a href="https://github.com/PHAREHUB/PHARE/pull/286">Python interface to set up and run simulations</a></span></li>
       <li><time datetime="2020-05-29">2020-05-29</time>
-        <span><a href="model.html#first-run">First 1D run on two levels: an Alfvén wave crossing a fixed refined patch.</a></span></li>
+        <span><a href="model.html#first-run">First two-level 1D run: Alfvén wave through a refined patch</a></span></li>
       <li><time datetime="2019-12-04">2019-12-04</time>
-        <span>HDF5 diagnostics for electromagnetic fields, ion moments and particles. <a class="pr" href="https://github.com/PHAREHUB/PHARE/pull/69">#69</a></span></li>
+        <span><a href="https://github.com/PHAREHUB/PHARE/pull/69">HDF5 output: fields, ion moments, particles</a></span></li>
     </ul>
   </section>
   <section aria-labelledby="wip-h">
     <header><h2 id="wip-h">Work in progress</h2><span class="validate-badge">to validate</span></header>
     <ul class="news">
       <li><span class="status review">in review</span>
-        <span>Physical boundary conditions <a class="pr" href="https://github.com/PHAREHUB/PHARE/pull/1318">#1318</a></span></li>
+        <span><a href="https://github.com/PHAREHUB/PHARE/pull/1327">External magnetic field</a></span></li>
       <li><span class="status review">in review</span>
-        <span>Higher-order field refinement at level boundaries <a class="pr" href="https://github.com/PHAREHUB/PHARE/pull/1278">#1278</a></span></li>
+        <span><a href="https://github.com/PHAREHUB/PHARE/pull/1444">Ion-ion collisions</a></span></li>
       <li><span class="status review">in review</span>
-        <span>Prescribed external fields <a class="pr" href="https://github.com/PHAREHUB/PHARE/pull/1327">#1327</a></span></li>
+        <span><a href="https://github.com/PHAREHUB/PHARE/pull/1469">Choice of refinement criterion, including Löhner&#39;s</a></span></li>
+      <li><span class="status review">in review</span>
+        <span><a href="https://github.com/PHAREHUB/PHARE/pull/1432">Installation with pip</a></span></li>
       <li><span class="status draft">draft</span>
-        <span>MHD and hybrid levels in one simulation <a class="pr" href="https://github.com/PHAREHUB/PHARE/pull/1309">#1309</a></span></li>
+        <span><a href="https://github.com/PHAREHUB/PHARE/pull/1309">MHD and hybrid levels in one run</a></span></li>
       <li><span class="status draft">draft</span>
-        <span>Multithreading <a class="pr" href="https://github.com/PHAREHUB/PHARE/pull/1324">#1324</a></span></li>
+        <span><a href="https://github.com/PHAREHUB/PHARE/pull/1324">Multithreading</a></span></li>
     </ul>
     <p class="muted" style="margin:0;font-size:13px">Week-by-week development activity: <a href="reports/index.html">activity reports</a>.</p>
   </section>
