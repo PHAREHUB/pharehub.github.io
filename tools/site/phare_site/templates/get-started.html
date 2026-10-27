@@ -63,9 +63,9 @@ run.GetB(25.0).plot(qty="z", plot_patches=True, filename="bz.png")</pre>
     <thead><tr><th>Feature</th><th>Status</th><th>Details</th></tr></thead>
     <tbody>
     {% for r in c.capabilities.rows %}
-      <tr><td><b>{{ r.feature }}</b></td>
+      <tr><td><b>{% if r.link %}<a href="{{ r.link }}">{{ r.feature }}</a>{% else %}{{ r.feature }}{% endif %}</b></td>
         <td><span class="status {{ r.status }}">{{ {"yes": "available", "partial": "limited", "no": "not available"}[r.status] }}</span></td>
-        <td>{{ r.detail }}{% if r.link %} <a href="{{ r.link }}">#{{ r.link.rsplit('/', 1)[1] }}</a>{% endif %}{% if r.validate %} <span class="validate-badge">to validate</span>{% endif %}</td></tr>
+        <td>{{ r.detail }}{% if r.validate %} <span class="validate-badge">to validate</span>{% endif %}</td></tr>
     {% endfor %}
     </tbody>
   </table></div>
