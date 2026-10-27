@@ -1,21 +1,26 @@
-# Work in progress, from open pull requests (state on 2026-10-05).
+# Work in progress, from open pull requests (state on 2026-10-27).
 # validate: the team decides what belongs here and in which words.
 validate = true
-
-[[items]]
-title = "Physical boundary conditions"
-state = "in review"
-pr = 1318
-
-[[items]]
-title = "Higher-order field refinement at level boundaries"
-state = "in review"
-pr = 1278
 
 [[items]]
 title = "Prescribed external fields"
 state = "in review"
 pr = 1327
+
+[[items]]
+title = "Ion-ion collisions in hybrid runs"
+state = "in review"
+pr = 1444
+
+[[items]]
+title = "Choice of the refinement criterion, including Löhner's"
+state = "in review"
+pr = 1469
+
+[[items]]
+title = "Installation with pip"
+state = "in review"
+pr = 1432
 
 [[items]]
 title = "MHD and hybrid levels in one simulation"

@@ -1,4 +1,19 @@
-# Newest first. Feature milestones: date = merge into master (GitHub mergedAt, UTC), checked 2026-10-05.
+# Newest first. Feature milestones: date = merge into master (GitHub mergedAt, UTC), checked 2026-10-27.
+
+[[items]]
+date = "2026-10-22"
+text = "Non-periodic domain boundaries for MHD runs: open, reflective and super-magnetofast inflow. Hybrid runs remain periodic."
+pr = 1318
+
+[[items]]
+date = "2026-10-16"
+text = "Particle splitting now matches the tables of Smets et al. (2021). The default splitter in 2D with interpolation order 2 changed, so refined 2D runs differ from earlier versions."
+pr = 1369
+
+[[items]]
+date = "2026-10-12"
+text = "Second-order field refinement in space and time at level boundaries, with a divergence-preserving prolongation of the magnetic field."
+pr = 1278
 
 [[items]]
 date = "2026-09-30"
