@@ -1,90 +1,90 @@
-# Newest first. Feature milestones: date = merge into master (GitHub mergedAt, UTC), checked 2026-10-27.
+# Newest first. text = short label, no sentence, no PR number (the label links to the PR or url). Feature milestones: date = merge into master (GitHub mergedAt, UTC), checked 2026-10-27.
 
 [[items]]
 date = "2026-10-22"
-text = "Non-periodic domain boundaries for MHD runs: open, reflective and super-magnetofast inflow. Hybrid runs remain periodic."
+text = "MHD open, reflecting and inflow boundaries"
 pr = 1318
 
 [[items]]
 date = "2026-10-16"
-text = "Particle splitting now matches the tables of Smets et al. (2021). The default splitter in 2D with interpolation order 2 changed, so refined 2D runs differ from earlier versions."
+text = "Particle splitting corrected to Smets et al. (2021); refined 2D results change"
 pr = 1369
 
 [[items]]
 date = "2026-10-12"
-text = "Second-order field refinement in space and time at level boundaries, with a divergence-preserving prolongation of the magnetic field."
+text = "Second-order mesh refinement in space and time, divergence-free B"
 pr = 1278
 
 [[items]]
 date = "2026-09-30"
-text = "Adaptive time stepping for the MHD solver."
+text = "MHD adaptive time stepping"
 pr = 1231
 
 [[items]]
 date = "2026-06-13"
-text = "A standalone finite-volume MHD solver, configured from Python, with 1D, 2D and 3D test cases."
+text = "Finite-volume MHD solver, 1D, 2D and 3D"
 pr = 1218
 
 [[items]]
 date = "2026-04-07"
-text = "3D hybrid simulations, including 3D particle splitting for refined levels."
+text = "3D hybrid runs with mesh refinement"
 pr = 1158
 
 [[items]]
 date = "2026-02-17"
-text = "VTK-HDF output, readable directly by ParaView."
+text = "VTK-HDF output, readable by ParaView"
 pr = 1141
 
 [[items]]
 date = "2024-07-22"
-text = "Optional dynamic load balancing across MPI ranks."
+text = "Dynamic load balancing across MPI ranks"
 pr = 807
 
 [[items]]
 date = "2024"
-text = "The PHARE method paper is published in Computer Physics Communications."
+text = "PHARE method paper, Computer Physics Communications"
 url = "https://doi.org/10.1016/j.cpc.2023.108966"
 
 [[items]]
 date = "2022-06-21"
-text = "Automatic refinement in 2D."
+text = "2D automatic refinement"
 pr = 678
 
 [[items]]
 date = "2022-03-07"
-text = "Checkpoint and restart."
+text = "Checkpoint and restart"
 pr = 649
 
 [[items]]
 date = "2021-07-07"
-text = "2D hybrid simulations with mesh refinement."
+text = "2D hybrid runs with mesh refinement"
 pr = 551
 
 [[items]]
 date = "2021-01-15"
-text = "Automatic refinement in 1D: cells are tagged where the magnetic field varies sharply."
+text = "1D automatic refinement on magnetic field gradients"
 pr = 399
 
 [[items]]
 date = "2020-11-20"
-text = "First 1D run with self-consistent refinement."
+text = "First 1D run with self-consistent refinement"
 
 [[items]]
 date = "2020-11-07"
-text = "Smets et al., on particle splitting for refined levels, is published in Computer Physics Communications."
+text = "Particle splitting paper (Smets et al.), Computer Physics Communications"
 url = "https://doi.org/10.1016/j.cpc.2020.107666"
 
 [[items]]
 date = "2020-07-16"
-text = "Simulations can be initialised and advanced from Python."
+text = "Python interface to set up and run simulations"
 pr = 286
 
 [[items]]
 date = "2020-05-29"
-text = "First 1D run on two levels: an Alfvén wave crossing a fixed refined patch."
+text = "First two-level 1D run: Alfvén wave through a refined patch"
 url = "model.html#first-run"
 
 [[items]]
 date = "2019-12-04"
-text = "HDF5 diagnostics for electromagnetic fields, ion moments and particles."
+text = "HDF5 output: fields, ion moments, particles"
 pr = 69

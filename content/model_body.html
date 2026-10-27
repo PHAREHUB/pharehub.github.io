@@ -426,8 +426,8 @@ that every fine cell carries the divergence of its parent cell
 (<a href="https://doi.org/10.1007/s42967-021-00182-x">Balsara, Samantaray and Subramanian 2023</a>). A coarse field
 with zero divergence therefore gives a fine field with zero divergence, to round-off. Ghost values at level
 boundaries are interpolated linearly in time between the parent's old and new states, for the magnetic field as well
-as the electric field and ion moments. Field refinement is thus second order in space and time; the convergence tests
-are in <a href="https://github.com/PHAREHUB/PHARE/pull/1278">#1278</a>.</p>
+as the electric field and ion moments. Field refinement is thus second order in space and time
+(<a href="https://github.com/PHAREHUB/PHARE/pull/1278">convergence tests</a>).</p>
 
 <h3 id="splitting">Particle splitting</h3>
 <!-- sources: src/amr/data/particles/refine/splitter.hpp; pyphare/pharein/simulation.py refined_particle_nbr; Smets et al. 2021 -->

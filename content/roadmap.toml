@@ -1,19 +1,20 @@
 # Work in progress, from open pull requests (state on 2026-10-27).
+# title = short label; it links to the PR.
 # validate: the team decides what belongs here and in which words.
 validate = true
 
 [[items]]
-title = "Prescribed external fields"
+title = "External magnetic field"
 state = "in review"
 pr = 1327
 
 [[items]]
-title = "Ion-ion collisions in hybrid runs"
+title = "Ion-ion collisions"
 state = "in review"
 pr = 1444
 
 [[items]]
-title = "Choice of the refinement criterion, including Löhner's"
+title = "Choice of refinement criterion, including Löhner's"
 state = "in review"
 pr = 1469
 
@@ -23,7 +24,7 @@ state = "in review"
 pr = 1432
 
 [[items]]
-title = "MHD and hybrid levels in one simulation"
+title = "MHD and hybrid levels in one run"
 state = "draft"
 pr = 1309
 

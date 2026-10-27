@@ -31,7 +31,7 @@
     <ul class="news">
       {% for n in c.news["items"] %}
       <li><time datetime="{{ n.date }}">{{ n.date }}</time>
-        <span>{% if n.url %}<a href="{{ n.url }}">{{ n.text }}</a>{% else %}{{ n.text }}{% endif %}{% if n.pr %} <a class="pr" href="{{ c.site.github }}/pull/{{ n.pr }}">#{{ n.pr }}</a>{% endif %}</span></li>
+        <span>{% if n.url %}<a href="{{ n.url }}">{{ n.text }}</a>{% elif n.pr %}<a href="{{ c.site.github }}/pull/{{ n.pr }}">{{ n.text }}</a>{% else %}{{ n.text }}{% endif %}</span></li>
       {% endfor %}
     </ul>
   </section>
@@ -40,7 +40,7 @@
     <ul class="news">
       {% for i in c.roadmap["items"] %}
       <li><span class="status {{ {'in review': 'review', 'draft': 'draft'}[i.state] }}">{{ i.state }}</span>
-        <span>{{ i.title }} <a class="pr" href="{{ c.site.github }}/pull/{{ i.pr }}">#{{ i.pr }}</a></span></li>
+        <span><a href="{{ c.site.github }}/pull/{{ i.pr }}">{{ i.title }}</a></span></li>
       {% endfor %}
     </ul>
     <p class="muted" style="margin:0;font-size:13px">Week-by-week development activity: <a href="reports/index.html">activity reports</a>.</p>
